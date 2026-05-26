@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pop-Out Remote</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Specific styles for the Remote Window */
+        body {
+            background-color: #111;
+            border: 2px solid #ff5500;
+            display: block; /* Overrides the center flex from main style */
+            padding-top: 40px; /* Space for drag region */
+        }
+        #drag-region {
+            width: 100%;
+            height: 35px;
+            background-color: #000;
+            position: absolute;
+            top: 0;
+            left: 0;
+            -webkit-app-region: drag;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid #ff5500;
+        }
+        .drag-title {
+            color: #ff5500;
+            font-size: 0.9rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+        .remote-content {
+            padding: 20px;
+            text-align: center;
+        }
+        .remote-btn {
+            width: 100%;
+            margin-bottom: 15px;
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="drag-region">
+        <span class="drag-title">STREAM SUITE REMOTE</span>
+    </div>
+    
+    <div class="remote-content">
+        <h2>Control Panel</h2>
+        
+        <button id="open-config-btn" class="primary-btn remote-btn">⚙️ Open Configuration</button>
+        
+        <hr style="border-color: #333; margin: 20px 0;">
+        <p style="color: #666; font-size: 0.9rem;">Scene controls will go here...</p>
+    </div>
+
+    <script src="remote.js"></script>
+</body>
+</html>

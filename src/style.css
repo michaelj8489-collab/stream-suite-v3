@@ -1,0 +1,217 @@
+@font-face {
+    font-family: 'Cinzel';
+    src: url('../assets/fonts/Cinzel-VariableFont_wght.ttf') format('truetype');
+}
+
+body {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-family: 'Cinzel', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    border: 2px solid #333; /* Clean border for the frameless window */
+    box-sizing: border-box;
+}
+
+#drag-region {
+    width: 100%;
+    height: 30px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    -webkit-app-region: drag; /* Electron magic to make frameless windows draggable */
+}
+
+
+/* Hardware Setup Section */
+.hardware-setup {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #444;
+    text-align: left;
+}
+
+.hardware-setup h3 {
+    margin-bottom: 15px;
+    color: #ff5500;
+}
+
+.input-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.input-group select {
+    padding: 10px;
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 4px;
+    font-size: 1rem;
+    outline: none;
+}
+
+.input-group select:focus {
+    border-color: #ff5500;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.secondary-btn {
+    background-color: #444;
+    color: #fff;
+}
+
+.secondary-btn:hover {
+    background-color: #555;
+}
+
+.primary-btn {
+    background-color: #ff5500;
+    color: #fff;
+}
+
+.primary-btn:hover {
+    background-color: #ff7733;
+}
+
+.primary-btn:disabled {
+    background-color: #555;
+    color: #888;
+    cursor: not-allowed;
+}
+
+/* --- App Dashboard Layout --- */
+.app-layout {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    padding-top: 30px; /* Accounts for drag region */
+    background-color: #111;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: 280px;
+    background-color: #1a1a1a;
+    border-right: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.app-title {
+    color: #ff5500;
+    margin: 0 0 10px 0;
+    letter-spacing: 2px;
+}
+
+.status-indicator {
+    font-size: 0.8rem;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+    margin-bottom: 20px;
+}
+
+.nav-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.nav-links li {
+    padding: 12px 15px;
+    margin-bottom: 5px;
+    background-color: #222;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #aaa;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.nav-links li:hover {
+    background-color: #2a2a2a;
+    color: #fff;
+}
+
+.nav-links li.active {
+    background-color: #333;
+    color: #fff;
+    border-left: 3px solid #ff5500;
+    font-weight: bold;
+}
+
+.launch-sidebar-btn {
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Main Content Area Styling */
+.content-area {
+    flex-grow: 1;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.tab-content {
+    display: none; /* Hides all tabs by default */
+}
+
+.tab-content.active-tab {
+    display: block; /* Shows the active tab */
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.text-input {
+    padding: 10px;
+    background-color: #222;
+    color: #fff;
+    border: 1px solid #555;
+    border-radius: 4px;
+    font-size: 1rem;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.text-input:focus {
+    border-color: #ff5500;
+}
+
+.save-btn {
+    background-color: #2a6f97;
+    color: white;
+}
+.save-btn:hover { background-color: #014f86; }
