@@ -1,0 +1,105 @@
+/* 
+   assets/frames/neon/neon.css 
+   UPDATED: Triple Chasing Lines, Counter-Rotations & Monoton Font via Google
+*/
+
+/* 1. The Triple Frame Setup */
+
+/* OUTER LINE (Clockwise) */
+body.theme-neon .overlay-frame {
+    /* A thin, slightly dim base so it looks like an unlit glass tube */
+    border: 2px solid rgba(255, 255, 255, 0.2); 
+    border-radius: 12px; 
+    animation: neonChaseClockwise 3s linear infinite;
+}
+
+/* MIDDLE LINE (Counter-Clockwise) */
+body.theme-neon .overlay-frame::before {
+    content: '';
+    position: absolute;
+    /* Spaced 12px inward */
+    top: 12px; left: 12px; right: 12px; bottom: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    pointer-events: none;
+    animation: neonChaseCounterClockwise 3s linear infinite;
+}
+
+/* INNER LINE (Clockwise) */
+body.theme-neon .overlay-frame::after {
+    content: '';
+    position: absolute;
+    /* Spaced 24px inward */
+    top: 24px; left: 24px; right: 24px; bottom: 24px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    pointer-events: none;
+    animation: neonChaseClockwise 3s linear infinite;
+}
+
+/* 2. The Chasing Light Animations */
+
+@keyframes neonChaseClockwise {
+    0%   { box-shadow: 0 -15px 15px var(--theme-color), inset 0 15px 15px var(--theme-color); }
+    25%  { box-shadow: 15px 0 15px var(--theme-color), inset -15px 0 15px var(--theme-color); }
+    50%  { box-shadow: 0 15px 15px var(--theme-color), inset 0 -15px 15px var(--theme-color); }
+    75%  { box-shadow: -15px 0 15px var(--theme-color), inset 15px 0 15px var(--theme-color); }
+    100% { box-shadow: 0 -15px 15px var(--theme-color), inset 0 15px 15px var(--theme-color); }
+}
+
+@keyframes neonChaseCounterClockwise {
+    0%   { box-shadow: 0 -15px 15px var(--theme-color), inset 0 15px 15px var(--theme-color); }
+    25%  { box-shadow: -15px 0 15px var(--theme-color), inset 15px 0 15px var(--theme-color); }
+    50%  { box-shadow: 0 15px 15px var(--theme-color), inset 0 -15px 15px var(--theme-color); }
+    75%  { box-shadow: 15px 0 15px var(--theme-color), inset -15px 0 15px var(--theme-color); }
+    100% { box-shadow: 0 -15px 15px var(--theme-color), inset 0 15px 15px var(--theme-color); }
+}
+
+/* 3. Lower-Third Box Styling */
+body.theme-neon .info-box {
+    background-color: rgba(0, 0, 0, 0.85);
+    border: 2px solid var(--theme-text-color); 
+    border-left: 6px solid var(--theme-text-color);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 
+                0 0 15px var(--theme-text-color);
+    border-radius: 6px;
+    /* Pushed in slightly so it doesn't overlap the 3 moving lines */
+    margin-left: 35px; 
+    margin-bottom: 35px;
+}
+
+/* 4. The Monoton Casino Sign Text */
+body.theme-neon .host-title,
+body.theme-neon .show-subtitle {
+    /* Since you linked Google Fonts in HTML, it will read this perfectly */
+    font-family: 'Monoton', cursive, sans-serif;
+    color: #ffffff;
+    font-weight: normal; 
+    animation: casinoFlicker 3s infinite alternate; 
+}
+
+body.theme-neon .host-title {
+    font-size: 2.8rem; 
+    letter-spacing: 2px;
+}
+
+body.theme-neon .show-subtitle {
+    font-size: 1.5rem;
+}
+
+/* The glitchy, failing neon bulb effect */
+@keyframes casinoFlicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+        text-shadow: 
+            0 0 5px #fff, 
+            0 0 10px #fff, 
+            0 0 20px var(--theme-text-color), 
+            0 0 40px var(--theme-text-color), 
+            0 0 80px var(--theme-text-color);
+        opacity: 1;
+    }
+    20%, 24%, 55% {
+        text-shadow: none;
+        opacity: 0.4; 
+    }
+}

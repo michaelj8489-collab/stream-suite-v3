@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dynamic Stream Overlay</title>
+    <style>
+        /* 
+           CONFIGURATION VARIABLES 
+           Stream Suite will eventually update these values via JavaScript 
+           based on user settings.
+        */
+        :root {
+            --overlay-padding: 2vw; /* Flexible padding based on screen width */
+            --theme-color: #ff5500; /* Default customizable color */
+
+            /* NEW: Independent text color. It defaults to matching the frame color. */
+            --theme-text-color: var(--theme-color);
+            
+            /* Lower Third Box Variables */
+            --box-bg: rgba(0, 0, 0, 0.6);
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background-color: transparent; 
+            background-color: #1a1a1a; /* Temporary background for development, will be removed in final version */
+            overflow: hidden;
+            position: relative;
+            font-family: sans-serif; /* Base font, will change per theme */
+        }
+
+        /* 
+           THE FRAME CONTAINER
+           This respects the padding and holds everything inside.
+        */
+        .overlay-frame {
+            position: absolute;
+            top: var(--overlay-padding);
+            left: var(--overlay-padding);
+            right: var(--overlay-padding);
+            bottom: var(--overlay-padding);
+            
+            /* Placeholder border - we will replace this with our animated themes later */
+            border: 2px solid var(--theme-color); 
+            
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Pushes content to the bottom */
+            z-index: 10;
+        }
+
+        /* 
+           LOWER LEFT INFORMATION BOX 
+        */
+        .info-box {
+            background-color: var(--box-bg);
+            padding: 1.5rem 2rem;
+            max-width: 30vw; /* Prevents it from stretching too far on ultrawide screens */
+            border-left: 4px solid var(--theme-color);
+            margin-bottom: 2vh;
+            margin-left: 1vw;
+            backdrop-filter: blur(4px); /* Adds a slight glass effect without heavy processing */
+            transition: all 0.3s ease; /* Smooth transition if settings are changed live */
+        }
+
+        .host-title {
+            color: var(--text-primary);
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .show-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        /* Container for canvas particles (embers, light rays) */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5; /* Stays behind the frame and text */
+        }
+    </style>
+
+<style>
+    /* LOCAL FONT ROUTING */
+    @font-face {
+        font-family: 'Orbitron';
+        src: url('../fonts/Orbitron-Regular.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'Monoton';
+        src: url('../fonts/Monoton-Regular.ttf') format('truetype');
+    }
+    @font-face {
+        font-family: 'Press Start 2P';
+        src: url('../fonts/PressStart2P-Regular.ttf') format('truetype');
+    }
+
+    /* ... rest of your CSS ... */
+</style>
+</head>
+<body class="">
+       
+
+
+    <!-- Particle Canvas for Embers/Light -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- The Main Responsive Frame -->
+    <div class="overlay-frame" id="dynamic-frame">
+        
+        <!-- The Customizable Lower Left Box -->
+        <div class="info-box" id="lower-third">
+            <div class="host-title" id="host-name">Host Name</div>
+            <div class="show-subtitle" id="show-name">Show Title</div>
+        </div>
+
+    </div>
+
+    <script src="overlay.js"></script>
+
+</body>
+</html>

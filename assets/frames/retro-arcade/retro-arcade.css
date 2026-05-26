@@ -1,0 +1,71 @@
+/* assets/frames/retro-arcade/retro-arcade.css 
+*/
+
+/* 1. The 8-Bit Pixel Frame */
+body.theme-retro-arcade .overlay-frame {
+    /* Thick, bright arcade border */
+    border: 12px solid #ffcc00; /* Classic Pac-Man Yellow */
+    
+    /* Inner shadow to create a chunky, 3D bezel effect */
+    box-shadow: 
+        inset 0 0 0 8px #000000, 
+        inset 0 0 0 16px #ff0055; /* Arcade Magenta */
+        
+    /* Cuts the corners into a classic 8-bit stair-step pattern */
+    clip-path: polygon(
+        0 12px, 12px 12px, 12px 0, 
+        calc(100% - 12px) 0, calc(100% - 12px) 12px, 100% 12px, 
+        100% calc(100% - 12px), calc(100% - 12px) calc(100% - 12px), calc(100% - 12px) 100%, 
+        12px 100%, 12px calc(100% - 12px), 0 calc(100% - 12px)
+    );
+    
+    background-color: rgba(0, 0, 0, 0.2); /* Slight darkening of the screen */
+}
+
+/* 2. The Lower-Third Arcade Block */
+body.theme-retro-arcade .info-box {
+    background-color: #000000;
+    
+    /* 8-bit border sizing */
+    border: 6px solid #00ffcc; /* Cyan accent */
+    border-bottom: 12px solid #00aa88; /* Shadowed bottom edge for depth */
+    
+    /* Matching stair-step pixel corners */
+    clip-path: polygon(
+        0 8px, 8px 8px, 8px 0, 
+        calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px, 
+        100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 
+        8px 100%, 8px calc(100% - 8px), 0 calc(100% - 8px)
+    );
+    
+    padding: 30px 40px;
+    margin-bottom: 3vh;
+    margin-left: 2vw;
+}
+
+/* 3. The 8-Bit Text Elements */
+body.theme-retro-arcade .host-title,
+body.theme-retro-arcade .show-subtitle {
+    font-family: 'Press Start 2P', cursive;
+    text-transform: uppercase;
+    text-shadow: 4px 4px 0px #ff0055; /* Hard, chunky drop shadow */
+}
+
+body.theme-retro-arcade .host-title {
+    color: #ffffff;
+    font-size: 1.8rem; /* Scaled down slightly because 8-bit fonts run very wide */
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+body.theme-retro-arcade .show-subtitle {
+    color: #ffcc00;
+    font-size: 1rem;
+    /* Classic Insert Coin Blink */
+    animation: insertCoinBlink 1.5s steps(2, start) infinite;
+}
+
+@keyframes insertCoinBlink {
+    0% { visibility: visible; }
+    50% { visibility: hidden; }
+}

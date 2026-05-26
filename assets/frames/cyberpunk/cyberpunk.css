@@ -1,0 +1,90 @@
+/* assets/frames/cyberpunk/cyberpunk.css 
+*/
+
+/* 1. The Holographic HUD Frame */
+body.theme-cyberpunk .overlay-frame {
+    /* Thin, high-tech cyan border */
+    border: 2px solid #00ffff; 
+    
+    /* Cuts the 4 corners off to create a sci-fi HUD shape */
+    clip-path: polygon(
+        30px 0, calc(100% - 30px) 0, 100% 30px, 100% calc(100% - 30px), 
+        calc(100% - 30px) 100%, 30px 100%, 0 calc(100% - 30px), 0 30px
+    );
+    
+    /* Inner and outer cyan glow */
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5), inset 0 0 15px rgba(0, 255, 255, 0.3);
+    background-color: rgba(0, 20, 40, 0.1); /* Very slight tinted glass background */
+}
+
+/* 2. The Sweeping Scanner Line */
+body.theme-cyberpunk .overlay-frame::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background-color: #ff00ff; /* Magenta scanner line */
+    box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff;
+    opacity: 0.8;
+    z-index: 15;
+    
+    /* Sweeps from top to bottom continuously */
+    animation: hologramScan 4s linear infinite;
+}
+
+@keyframes hologramScan {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(calc(100vh - (var(--overlay-padding) * 2))); opacity: 0; }
+}
+
+/* 3. The Cyberpunk Lower-Third Box */
+body.theme-cyberpunk .info-box {
+    background-color: rgba(10, 15, 30, 0.7);
+    /* Frosted glass effect */
+    backdrop-filter: blur(8px); 
+    
+    /* Magenta and Cyan accents */
+    border-top: 1px solid #00ffff;
+    border-left: 4px solid #ff00ff;
+    border-bottom: 4px solid #00ffff;
+    border-right: 1px solid #ff00ff;
+    
+    /* Sliced corners matching the main frame */
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+    margin-bottom: 2vh;
+    margin-left: 2vw;
+}
+
+/* 4. The Orbitron Glitch Text */
+body.theme-cyberpunk .host-title,
+body.theme-cyberpunk .show-subtitle {
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    /* Magenta and Cyan split text-shadow creates a subtle chromatic aberration (glitch) effect */
+    animation: digitalGlitch 3s infinite linear alternate-reverse;
+}
+
+body.theme-cyberpunk .host-title {
+    color: #ffffff;
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+}
+
+body.theme-cyberpunk .show-subtitle {
+    color: #00ffff;
+    font-size: 1.2rem;
+    font-weight: 500;
+    letter-spacing: 5px;
+}
+
+/* Chromatic Aberration Text Glitch */
+@keyframes digitalGlitch {
+    0%, 100% { text-shadow: 2px 0 0 rgba(255, 0, 255, 0.8), -2px 0 0 rgba(0, 255, 255, 0.8); }
+    33% { text-shadow: -2px 0 0 rgba(255, 0, 255, 0.8), 2px 0 0 rgba(0, 255, 255, 0.8); }
+    66% { text-shadow: 1px 0 0 rgba(255, 0, 255, 0.8), -1px 0 0 rgba(0, 255, 255, 0.8); }
+}
