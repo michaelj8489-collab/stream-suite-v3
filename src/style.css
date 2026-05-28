@@ -1,6 +1,35 @@
-@font-face {
-    font-family: 'Cinzel';
-    src: url('../assets/fonts/Cinzel-VariableFont_wght.ttf') format('truetype');
+/* =========================================
+   LOCAL FONT ENGINE (CURATED)
+========================================= */
+
+/* Decorative / The Typographic Trinity Base */
+@font-face { font-family: 'Cinzel'; src: url('../assets/fonts/Cinzel-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Cinzel Decorative'; src: url('../assets/fonts/CinzelDecorative-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Cormorant Garamond'; src: url('../assets/fonts/CormorantGaramond-VariableFont_wght.ttf') format('truetype'); }
+
+@font-face { font-family: 'Creepster'; src: url('../assets/fonts/Creepster-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Indie Flower'; src: url('../assets/fonts/IndieFlower-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Pacifico'; src: url('../assets/fonts/Pacifico-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Satisfy'; src: url('../assets/fonts/Satisfy-Regular.ttf') format('truetype'); }
+
+/* Modern / Tech */
+@font-face { font-family: 'Anton'; src: url('../assets/fonts/Anton-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'DM Sans'; src: url('../assets/fonts/DMSans-VariableFont_opsz,wght.ttf') format('truetype'); }
+@font-face { font-family: 'Orbitron'; src: url('../assets/fonts/Orbitron-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Monoton'; src: url('../assets/fonts/Monoton-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Press Start 2P'; src: url('../assets/fonts/PressStart2P-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Saira Stencil'; src: url('../assets/fonts/SairaStencil-VariableFont_wdth,wght.ttf') format('truetype'); }
+
+/* Classic / Serif */
+@font-face { font-family: 'Lora'; src: url('../assets/fonts/Lora-Italic-VariableFont_wght.ttf') format('truetype'); }
+@font-face { font-family: 'Playfair Display SC'; src: url('../assets/fonts/PlayfairDisplaySC-Regular.ttf') format('truetype'); }
+@font-face { font-family: 'Roboto Slab'; src: url('../assets/fonts/RobotoSlab-VariableFont_wght.ttf') format('truetype'); }
+@font-face { font-family: 'Unifraktur Maguntia'; src: url('../assets/fonts/UnifrakturMaguntia-Regular.ttf') format('truetype'); }
+
+:root {
+    --overlay-padding: 2vw; 
+    --theme-color: #ff5500; 
+    --theme-text-color: #ff5500;
 }
 
 body {
@@ -13,7 +42,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    border: 2px solid #333; /* Clean border for the frameless window */
+    border: 2px solid #333; 
     box-sizing: border-box;
 }
 
@@ -23,195 +52,239 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    -webkit-app-region: drag; /* Electron magic to make frameless windows draggable */
+    -webkit-app-region: drag; 
+    z-index: 9999;
 }
 
-
-/* Hardware Setup Section */
-.hardware-setup {
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #444;
-    text-align: left;
+/* =========================================
+   CORE SCENE LAYOUT (THE FIX)
+========================================= */
+.scene { 
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+    opacity: 0; visibility: hidden; 
+    transition: opacity 0.8s ease-in-out, visibility 0.8s; 
+    z-index: 1; 
+}
+.scene.active { 
+    opacity: 1; visibility: visible; 
+    z-index: 5; 
 }
 
-.hardware-setup h3 {
-    margin-bottom: 15px;
-    color: #ff5500;
+/* Fullscreen Camera */
+video { width: 100%; height: 100%; object-fit: cover; background: #000; }
+
+/* =========================================
+   HARDWARE & CONFIG WINDOW STYLING
+========================================= */
+.hardware-setup { margin-top: 30px; padding-top: 20px; border-top: 1px solid #444; text-align: left; }
+.hardware-setup h3 { margin-bottom: 15px; color: #ff5500; }
+
+.input-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+.input-group label { margin-bottom: 5px; font-size: 0.9rem; color: #ccc; }
+.input-group select { padding: 10px; background-color: #222; color: #fff; border: 1px solid #555; border-radius: 4px; font-size: 1rem; outline: none; }
+.input-group select:focus { border-color: #ff5500; }
+
+.button-group { display: flex; justify-content: space-between; margin-top: 25px; }
+
+button { padding: 10px 20px; font-size: 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: all 0.2s ease; }
+.secondary-btn { background-color: #444; color: #fff; }
+.secondary-btn:hover { background-color: #555; }
+.primary-btn { background-color: #ff5500; color: #fff; }
+.primary-btn:hover { background-color: #ff7733; }
+.primary-btn:disabled { background-color: #555; color: #888; cursor: not-allowed; }
+
+.app-layout { display: flex; width: 100vw; height: 100vh; padding-top: 30px; background-color: #111; }
+.text-input { padding: 10px; background-color: #222; color: #fff; border: 1px solid #555; border-radius: 4px; font-size: 1rem; outline: none; width: 100%; box-sizing: border-box; }
+.text-input:focus { border-color: #ff5500; }
+
+/* =========================================
+   SCENE 2: LIVE HOST THEMES (RESTORED)
+========================================= */
+#host-frame { 
+    inset: var(--overlay-padding); 
+    box-sizing: border-box !important; 
+    pointer-events: none;
+    z-index: 5;
+}
+#host-lower-third { 
+    position: absolute;
+    box-sizing: border-box !important; 
+    z-index: 10;
 }
 
-.input-group {
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
+/* --- 1. Cyberpunk Theme --- */
+#host-frame.theme-cyberpunk {
+    border: 2px solid #00ffff; 
+    clip-path: polygon(
+        30px 0, calc(100% - 30px) 0, 100% 30px, 100% calc(100% - 30px), 
+        calc(100% - 30px) 100%, 30px 100%, 0 calc(100% - 30px), 0 30px
+    );
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.5), inset 0 0 15px rgba(0, 255, 255, 0.3);
+    background-color: rgba(0, 20, 40, 0.1); 
+}
+#host-frame.theme-cyberpunk::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background-color: #ff00ff; 
+    box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff;
+    opacity: 0.8; z-index: 15;
+    animation: hologramScan 4s linear infinite;
+}
+@keyframes hologramScan {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(calc(100vh - (var(--overlay-padding) * 2))); opacity: 0; }
+}
+#host-lower-third.theme-cyberpunk {
+    background-color: rgba(10, 15, 30, 0.7);
+    backdrop-filter: blur(8px); 
+    border-top: 1px solid #00ffff; border-left: 4px solid #ff00ff;
+    border-bottom: 4px solid #00ffff; border-right: 1px solid #ff00ff;
+    clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8);
+    bottom: 2vh; left: 2vw; padding: 1.5rem 2rem; max-width: 30vw;
+}
+.theme-cyberpunk #host-name-display, .theme-cyberpunk #show-name-display {
+    font-family: 'Orbitron', sans-serif; text-transform: uppercase;
+    animation: digitalGlitch 3s infinite linear alternate-reverse;
+}
+.theme-cyberpunk #host-name-display { color: #ffffff; font-size: 2.2rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 0.5rem;}
+.theme-cyberpunk #show-name-display { color: #00ffff; font-size: 1.2rem; font-weight: 500; letter-spacing: 5px; margin: 0;}
+@keyframes digitalGlitch {
+    0%, 100% { text-shadow: 2px 0 0 rgba(255, 0, 255, 0.8), -2px 0 0 rgba(0, 255, 255, 0.8); }
+    33% { text-shadow: -2px 0 0 rgba(255, 0, 255, 0.8), 2px 0 0 rgba(0, 255, 255, 0.8); }
+    66% { text-shadow: 1px 0 0 rgba(255, 0, 255, 0.8), -1px 0 0 rgba(0, 255, 255, 0.8); }
 }
 
-.input-group label {
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-    color: #ccc;
+/* --- 2. Neon Theme --- */
+#host-frame.theme-neon {
+    border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 12px; 
+    animation: neonChaseClockwise 3s linear infinite;
+}
+#host-frame.theme-neon::before {
+    content: ''; position: absolute; top: 12px; left: 12px; right: 12px; bottom: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 8px; pointer-events: none;
+    animation: neonChaseCounterClockwise 3s linear infinite;
+}
+#host-frame.theme-neon::after {
+    content: ''; position: absolute; top: 24px; left: 24px; right: 24px; bottom: 24px;
+    border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 4px; pointer-events: none;
+    animation: neonChaseClockwise 3s linear infinite;
+}
+@keyframes neonChaseClockwise {
+    0%   { box-shadow: 0 -15px 15px #0ff, inset 0 15px 15px #0ff; }
+    25%  { box-shadow: 15px 0 15px #ff00ff, inset -15px 0 15px #ff00ff; }
+    50%  { box-shadow: 0 15px 15px #0ff, inset 0 -15px 15px #0ff; }
+    75%  { box-shadow: -15px 0 15px #ff00ff, inset 15px 0 15px #ff00ff; }
+    100% { box-shadow: 0 -15px 15px #0ff, inset 0 15px 15px #0ff; }
+}
+@keyframes neonChaseCounterClockwise {
+    0%   { box-shadow: 0 -15px 15px #ff00ff, inset 0 15px 15px #ff00ff; }
+    25%  { box-shadow: -15px 0 15px #0ff, inset 15px 0 15px #0ff; }
+    50%  { box-shadow: 0 15px 15px #ff00ff, inset 0 -15px 15px #ff00ff; }
+    75%  { box-shadow: 15px 0 15px #0ff, inset -15px 0 15px #0ff; }
+    100% { box-shadow: 0 -15px 15px #ff00ff, inset 0 15px 15px #ff00ff; }
+}
+#host-lower-third.theme-neon {
+    background-color: rgba(0, 0, 0, 0.85); border: 2px solid #0ff; border-left: 6px solid #0ff;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 15px #0ff; border-radius: 6px;
+    bottom: 35px; left: 35px; padding: 1.5rem 2rem; max-width: 30vw;
+}
+.theme-neon #host-name-display, .theme-neon #show-name-display {
+    font-family: 'Monoton', cursive, sans-serif; color: #ffffff; font-weight: normal; 
+    animation: casinoFlicker 3s infinite alternate; 
+}
+.theme-neon #host-name-display { font-size: 2.8rem; letter-spacing: 2px; margin-bottom: 0.5rem;}
+.theme-neon #show-name-display { font-size: 1.5rem; margin: 0;}
+@keyframes casinoFlicker {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #0ff, 0 0 40px #0ff, 0 0 80px #0ff; opacity: 1; }
+    20%, 24%, 55% { text-shadow: none; opacity: 0.4; }
 }
 
-.input-group select {
-    padding: 10px;
-    background-color: #222;
-    color: #fff;
-    border: 1px solid #555;
-    border-radius: 4px;
-    font-size: 1rem;
-    outline: none;
+/* --- 3. Retro-Arcade Theme --- */
+#host-frame.theme-retro-arcade {
+    border: 12px solid #ffcc00; 
+    box-shadow: inset 0 0 0 8px #000000, inset 0 0 0 16px #ff0055; 
+    clip-path: polygon(
+        0 12px, 12px 12px, 12px 0, 
+        calc(100% - 12px) 0, calc(100% - 12px) 12px, 100% 12px, 
+        100% calc(100% - 12px), calc(100% - 12px) calc(100% - 12px), calc(100% - 12px) 100%, 
+        12px 100%, 12px calc(100% - 12px), 0 calc(100% - 12px)
+    );
+    background-color: rgba(0, 0, 0, 0.2); 
+}
+#host-lower-third.theme-retro-arcade {
+    background-color: #000000; border: 6px solid #00ffcc; border-bottom: 12px solid #00aa88; 
+    clip-path: polygon(
+        0 8px, 8px 8px, 8px 0, calc(100% - 8px) 0, calc(100% - 8px) 8px, 100% 8px, 
+        100% calc(100% - 8px), calc(100% - 8px) calc(100% - 8px), calc(100% - 8px) 100%, 
+        8px 100%, 8px calc(100% - 8px), 0 calc(100% - 8px)
+    );
+    bottom: 3vh; left: 2vw; padding: 30px 40px; max-width: 30vw;
+}
+.theme-retro-arcade #host-name-display, .theme-retro-arcade #show-name-display {
+    font-family: 'Press Start 2P', cursive; text-transform: uppercase; text-shadow: 4px 4px 0px #ff0055; 
+}
+.theme-retro-arcade #host-name-display { color: #ffffff; font-size: 1.8rem; line-height: 1.5; margin-bottom: 15px; }
+.theme-retro-arcade #show-name-display { color: #ffcc00; font-size: 1rem; animation: insertCoinBlink 1.5s steps(2, start) infinite; margin: 0; }
+@keyframes insertCoinBlink { 0% { visibility: visible; } 50% { visibility: hidden; } }
+
+/* =========================================
+   SCENE 3: MEDIA PLAYER VISUALIZER
+========================================= */
+.eq-bar {
+    width: 12px;
+    background-color: #ff5500; 
+    border-radius: 4px 4px 0 0;
+    animation: eqPulse 1.2s ease-in-out infinite alternate;
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+.eq-bar:nth-child(1) { animation-duration: 0.8s; }
+.eq-bar:nth-child(2) { animation-duration: 1.1s; }
+.eq-bar:nth-child(3) { animation-duration: 0.9s; }
+.eq-bar:nth-child(4) { animation-duration: 1.3s; }
+.eq-bar:nth-child(5) { animation-duration: 0.7s; }
+.eq-bar:nth-child(6) { animation-duration: 1.2s; }
+.eq-bar:nth-child(7) { animation-duration: 1.0s; }
+.eq-bar:nth-child(8) { animation-duration: 1.4s; }
+.eq-bar:nth-child(9) { animation-duration: 0.8s; }
+.eq-bar:nth-child(10) { animation-duration: 1.1s; }
+
+.overlay-fade-in { opacity: 1 !important; transform: translateY(0) !important; }
+.overlay-fade-out { opacity: 0 !important; transform: translateY(50px) !important; }
+
+@keyframes eqPulse {
+    0% { height: 10px; }
+    50% { height: 40px; }
+    100% { height: 80px; }
 }
 
-.input-group select:focus {
-    border-color: #ff5500;
+/* =========================================
+   GLOBAL SLIDING BANNER & TICKER
+========================================= */
+#global-banner-container {
+    position: absolute; bottom: -100px; left: 0; width: 100%; height: 60px;
+    background: rgba(0, 0, 0, 0.9); border-top: 3px solid #ff5500; z-index: 9999; 
+    display: flex; align-items: center; transition: bottom 0.6s ease-in-out, top 0.6s ease-in-out;
 }
+#global-banner-container.banner-visible { bottom: 0; }
 
-.button-group {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 25px;
+.ticker-wrap { width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; }
+.ticker-text {
+    display: inline-block; padding-left: 100%; font-size: 2.5rem; color: #ffffff;
+    font-family: sans-serif; letter-spacing: 2px; animation: tickerScroll 20s linear infinite;
 }
+@keyframes tickerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
 
-button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s ease;
+/* =========================================
+   WINDOW CONTROLS & DRAG REGION
+========================================= */
+.custom-titlebar {
+    position: fixed; top: 0; right: 0; width: 150px; height: 35px; display: flex;
+    justify-content: flex-end; background: rgba(0, 0, 0, 0.8); border-bottom-left-radius: 8px;
+    opacity: 0; transition: opacity 0.3s ease-in-out; z-index: 9999; -webkit-app-region: drag; 
 }
-
-.secondary-btn {
-    background-color: #444;
-    color: #fff;
-}
-
-.secondary-btn:hover {
-    background-color: #555;
-}
-
-.primary-btn {
-    background-color: #ff5500;
-    color: #fff;
-}
-
-.primary-btn:hover {
-    background-color: #ff7733;
-}
-
-.primary-btn:disabled {
-    background-color: #555;
-    color: #888;
-    cursor: not-allowed;
-}
-
-/* --- App Dashboard Layout --- */
-.app-layout {
-    display: flex;
-    width: 100vw;
-    height: 100vh;
-    padding-top: 30px; /* Accounts for drag region */
-    background-color: #111;
-}
-
-/* Sidebar Styling */
-.sidebar {
-    width: 280px;
-    background-color: #1a1a1a;
-    border-right: 1px solid #333;
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-}
-
-.app-title {
-    color: #ff5500;
-    margin: 0 0 10px 0;
-    letter-spacing: 2px;
-}
-
-.status-indicator {
-    font-size: 0.8rem;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #333;
-    margin-bottom: 20px;
-}
-
-.nav-links {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex-grow: 1;
-}
-
-.nav-links li {
-    padding: 12px 15px;
-    margin-bottom: 5px;
-    background-color: #222;
-    border-radius: 4px;
-    cursor: pointer;
-    color: #aaa;
-    transition: all 0.2s;
-    border-left: 3px solid transparent;
-}
-
-.nav-links li:hover {
-    background-color: #2a2a2a;
-    color: #fff;
-}
-
-.nav-links li.active {
-    background-color: #333;
-    color: #fff;
-    border-left: 3px solid #ff5500;
-    font-weight: bold;
-}
-
-.launch-sidebar-btn {
-    width: 100%;
-    margin-top: 20px;
-}
-
-/* Main Content Area Styling */
-.content-area {
-    flex-grow: 1;
-    padding: 40px;
-    overflow-y: auto;
-}
-
-.tab-content {
-    display: none; /* Hides all tabs by default */
-}
-
-.tab-content.active-tab {
-    display: block; /* Shows the active tab */
-    animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.text-input {
-    padding: 10px;
-    background-color: #222;
-    color: #fff;
-    border: 1px solid #555;
-    border-radius: 4px;
-    font-size: 1rem;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.text-input:focus {
-    border-color: #ff5500;
-}
-
-.save-btn {
-    background-color: #2a6f97;
-    color: white;
-}
-.save-btn:hover { background-color: #014f86; }
+.custom-titlebar:hover { opacity: 1; }
+.titlebar-btn { -webkit-app-region: no-drag; background: transparent; border: none; color: white; width: 45px; font-size: 16px; cursor: pointer; transition: background 0.2s; }
+.titlebar-btn:hover { background: rgba(255, 255, 255, 0.2); }
+.close-btn:hover { background: #ff4c4c; }

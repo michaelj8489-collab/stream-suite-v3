@@ -128,7 +128,7 @@ animateParticles();
 /* DEV TEST: 
    Uncomment this to simulate Stream Suite swapping themes every 5 seconds!
 */
-/*
+// /*
 let testThemes = ['neon', 'cyberpunk', 'retro-arcade'];
 let themeIndex = 0;
 setInterval(() => {
@@ -137,4 +137,4 @@ setInterval(() => {
     });
     themeIndex = (themeIndex + 1) % testThemes.length;
 }, 5000);
-*/
+// */

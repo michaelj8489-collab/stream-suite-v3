@@ -2,312 +2,361 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Stream Suite V3</title>
+    <title>Stream Suite V3 - Setup Wizard</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Wizard Specific Overrides */
+        .app-layout { display: flex; justify-content: center; align-items: center; padding-top: 35px; }
+        .wizard-container { width: 800px; max-height: 85vh; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); display: flex; flex-direction: column; overflow: hidden; }
+        .wizard-header { background: #111; padding: 20px; border-bottom: 2px solid #ff5500; text-align: center; }
+        .wizard-header h2 { margin: 0; color: #ff5500; letter-spacing: 2px; }
+        .wizard-header p { margin: 5px 0 0 0; color: #aaa; font-size: 0.9rem; }
+        .wizard-body { padding: 30px; overflow-y: auto; flex-grow: 1; }
+        .wizard-step { display: none; animation: fadeIn 0.4s ease; }
+        .wizard-step.active-step { display: block; }
+        .wizard-footer { background: #111; padding: 20px; border-top: 1px solid #333; display: flex; justify-content: space-between; }
+        .step-explanation { background: rgba(255, 85, 0, 0.1); border-left: 4px solid #ff5500; padding: 15px; margin-bottom: 25px; border-radius: 0 8px 8px 0; }
+        .step-explanation h4 { margin: 0 0 5px 0; color: #fff; }
+        .step-explanation p { margin: 0; color: #ccc; font-size: 0.95rem; line-height: 1.4; }
+        .mp3-guide { background: rgba(0, 170, 255, 0.1); border: 1px solid #00aaff; padding: 15px; border-radius: 8px; margin-top: 15px; }
+        .mp3-guide code { background: #000; padding: 4px 8px; color: #0ff; border-radius: 4px; font-size: 1.1rem; }
+    </style>
 </head>
 <body>
-   <body>
+    <div class="custom-titlebar">
+        <button id="min-btn" class="titlebar-btn">_</button>
+        <button id="close-btn" class="titlebar-btn close-btn">×</button>
+    </div>
     <div id="drag-region"></div> 
-    
+
     <div class="app-layout">
-        <nav class="sidebar">
-            <h2 class="app-title">STREAM SUITE</h2>
-            <div id="hardware-status" class="status-indicator">Checking system...</div>
+        <div class="wizard-container">
             
-           <ul class="nav-links">
-                <li class="active" data-target="tab-hardware">Hardware & Inputs</li>
-                <li data-target="tab-countdown">Scene 1: Countdown</li>
-                <li data-target="tab-host">Scene 2: Live Host</li>
-                <li data-target="tab-media">Scene 3: Media Player</li>
-                <li data-target="tab-screenshare">Scene 4: Screen Share</li> <li data-target="tab-output">Output & Profiles</li>
-            </ul>
-            
-            <button id="launch-stage-btn" class="primary-btn launch-sidebar-btn" disabled>Launch Main Stage</button>
-        </nav>
+            <div class="wizard-header">
+                <h2>STREAM SUITE</h2>
+                <p id="wizard-progress">Step 1 of 7: Welcome to Stream Suite</p>
+            </div>
 
-        <main class="content-area">
-            
-            <section id="tab-hardware" class="tab-content active-tab">
-                <h3>Hardware Configuration</h3>
-                <div class="input-group">
-                    <label for="camera-select">Primary Camera:</label>
-                    <select id="camera-select"><option value="">Scanning...</option></select>
-                </div>
-                <div class="input-group">
-                    <label for="mic-select">Primary Microphone:</label>
-                    <select id="mic-select"><option value="">Scanning...</option></select>
-                </div>
-                <div class="input-group">
-                    <label for="vdo-link">VDO.Ninja Guest Link (Optional):</label>
-                    <input type="text" id="vdo-link" placeholder="https://vdo.ninja/?view=XXXXXX" class="text-input">
-                </div>
-                <div class="button-group">
-                    <button id="rescan-btn" class="secondary-btn">Rescan Devices</button>
-                    <button class="save-btn">Save Settings</button>
-                </div>
-            </section>
-
-            <section id="tab-countdown" class="tab-content">
-                <h3>Countdown Settings</h3>
+            <div class="wizard-body">
                 
-                <div class="input-group">
-                    <label>Background Media (Image or Looping Video):</label>
-                    <div style="display: flex; gap: 10px;">
-                        <button id="countdown-bg-btn" class="secondary-btn">Browse Files</button>
-                        <input type="text" id="countdown-bg-path" class="text-input" placeholder="No file selected..." readonly>
+                <div id="step-1" class="wizard-step active-step">
+                    <h2 style="font-size: 2.5rem; color: #ff5500; text-align: center; margin-top: 0;">Welcome to Stream Suite!</h2>
+                    <p style="text-align: center; font-size: 1.2rem; color: #ccc;">Let's make sure your setup is ready before we build your show.</p>
+
+                    <div style="display: flex; gap: 20px; margin: 30px 0;">
+                        <div style="flex-grow: 1; background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #333;">
+                            <button id="check-pc-btn" class="secondary-btn" style="width: 100%; font-size: 1.2rem; padding: 15px;">💻 Will this work?</button>
+                            <div id="hardware-status" style="margin-top: 15px; font-size: 0.95rem; color: #aaa;">Click above to check your computer.</div>
+                        </div>
+                        <div style="flex-grow: 1; background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #333;">
+                            <button id="check-net-btn" class="secondary-btn" style="width: 100%; font-size: 1.2rem; padding: 15px;">🌐 Will it work on internet?</button>
+                            <div id="network-status" style="margin-top: 15px; font-size: 0.95rem; color: #aaa;">Click above to check your connection.</div>
+                        </div>
+                    </div>
+
+                    <div class="step-explanation">
+                        <h4>What happens next?</h4>
+                        <p>We are going to ask you a few simple questions to build your broadcast. Here is the plan:</p>
+                        <ul style="color: #ccc; font-size: 1rem; line-height: 1.6; margin-bottom: 0;">
+                            <li><strong>1. Devices:</strong> Pick your camera and microphone.</li>
+                            <li><strong>2. The Waiting Room:</strong> Pick the picture and music people experience before you start.</li>
+                            <li><strong>3. The Main Stage:</strong> Type your name and pick the colors for when you are talking.</li>
+                            <li><strong>4. The DJ Booth:</strong> Show us the folder where your MP3 music files are saved.</li>
+                            <li><strong>5. Screen Share:</strong> Pick a window if you want to show your computer screen.</li>
+                            <li><strong>6. The Keys:</strong> Paste your secret passwords so we can broadcast your show to the world!</li>
+                        </ul>
                     </div>
                 </div>
 
-                <div class="input-group" style="margin-top: 20px;">
-                    <label for="countdown-position">Timer Position:</label>
-                    <select id="countdown-position">
-                        <option value="top-center">Top Center</option>
-                        <option value="absolute-center">Absolute Center</option>
-                        <option value="bottom-center">Bottom Center</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label for="countdown-text">Header Message:</label>
-                    <input type="text" id="countdown-text" class="text-input" value="Starting Soon...">
-                </div>
-
-                <div style="display: flex; gap: 20px;">
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="countdown-font">Timer & Text Font:</label>
-                        <select id="countdown-font">
-                            <option value="Anton-Regular">Anton</option>
-                            <option value="CormorantGaramond">Cormorant Garamond</option>
-                            <option value="Creepster-Regular">Creepster</option>
-                            <option value="DMSans">DM Sans</option>
-                            <option value="IndieFlower">Indie Flower</option>
-                            <option value="Lora">Lora</option>
-                            <option value="Oswald">Oswald</option>
-                            <option value="Pacifico-Regular">Pacifico</option>
-                            <option value="Playfair">Playfair</option>
-                            <option value="RobotoSlab">Roboto Slab</option>
-                            <option value="SairaStencil">Saira Stencil</option>
-                            <option value="Satisfy-Regular">Satisfy</option>
-                            <option value="Cinzel-VariableFont">Cinzel</option>
-                            <option value="CinzelDecorative-Regular">Cinzel Decorative</option>
-                        </select>
+                <div id="step-2" class="wizard-step">
+                    <div class="step-explanation">
+                        <h4>Step 1: Pick your devices</h4>
+                        <p>Let's make sure Stream Suite can see your camera and microphone. Select them from the dropdowns below.</p>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Primary Camera:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="camera-select" style="flex-grow: 1;" class="text-input"><option value="">Scanning...</option></select>
+                            <button id="rescan-btn" class="secondary-btn">↻ Rescan</button>
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label for="countdown-color">Font Color:</label>
-                        <input type="color" id="countdown-color" value="#ffffff" style="height: 40px; cursor: pointer;">
-                    </div>
-                </div>
-
-                <div class="input-group" style="margin-top: 20px;">
-                    <label>Pre-Show Audio Source:</label>
-                    <select id="countdown-audio-type">
-                        <option value="folder">Folder of Downloaded Tracks</option>
-                        <option value="line-in">Live Line-In Player</option>
-                    </select>
-                </div>
-                
-                <div class="input-group" id="countdown-folder-group">
-                    <div style="display: flex; gap: 10px;">
-                        <button id="countdown-audio-btn" class="secondary-btn">Select Music Folder</button>
-                        <input type="text" id="countdown-audio-path" class="text-input" placeholder="No folder selected..." readonly>
-                    </div>
-                </div>
-
-                <div class="button-group" style="margin-top: 30px;">
-                    <button class="save-btn">Save Settings</button>
-                </div>
-            </section>
-
-           <section id="tab-host" class="tab-content">
-                <h3>Live Host Settings</h3>
-
-                <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="host-name-input">Host Name:</label>
-                        <input type="text" id="host-name-input" class="text-input" value="Host Name">
-                    </div>
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="show-name-input">Show Name:</label>
-                        <input type="text" id="show-name-input" class="text-input" value="Live Broadcast">
-                    </div>
-                </div>
-
-                <div class="input-group" style="margin-bottom: 20px;">
-                    <label for="host-theme">Overlay Theme:</label>
-                    <select id="host-theme">
-                        <option value="cyberpunk">Cyberpunk</option>
-                        <option value="neon">Neon</option>
-                        <option value="retro-arcade">Retro-Arcade</option>
-                    </select>
-                </div>
-
-                <div class="input-group">
-                    <label>Background Audio Source (Starts at 1% Volume):</label>
-                    <select id="host-audio-type">
-                        <option value="folder">Folder of Downloaded Tracks</option>
-                        <option value="line-in">Live Line-In Player</option>
-                    </select>
-                </div>
-                
-                <div class="input-group" id="host-folder-group">
-                    <div style="display: flex; gap: 10px;">
-                        <button id="host-audio-btn" class="secondary-btn">Select Music Folder</button>
-                        <input type="text" id="host-audio-path" class="text-input" placeholder="No folder selected..." readonly>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 20px; margin-top: 20px;">
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="host-initial-song">Initial Song Title:</label>
-                        <input type="text" id="host-initial-song" class="text-input" placeholder="e.g., Bohemian Rhapsody">
-                    </div>
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="host-initial-artist">Initial Artist Name:</label>
-                        <input type="text" id="host-initial-artist" class="text-input" placeholder="e.g., Queen">
-                    </div>
-                </div>
-
-                <div class="button-group" style="margin-top: 30px;">
-                    <button class="save-btn">Save Settings</button>
-                </div>
-            </section>
-
-           <section id="tab-media" class="tab-content">
-                <h3>Media Player Settings</h3>
-
-                <div class="input-group">
-                    <label>Background Visual (Static Image or Looping Video):</label>
-                    <div style="display: flex; gap: 10px;">
-                        <button id="media-bg-btn" class="secondary-btn">Browse Files</button>
-                        <input type="text" id="media-bg-path" class="text-input" placeholder="No file selected..." readonly>
-                    </div>
-                </div>
-
-                <h4 style="color: #ff5500; margin-top: 30px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px;">Overlay Aesthetics</h4>
-                <div style="display: flex; gap: 20px;">
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="media-font">Overlay Font:</label>
-                        <select id="media-font">
-                            <option value="Anton-Regular">Anton</option>
-                            <option value="CormorantGaramond">Cormorant Garamond</option>
-                            <option value="Creepster-Regular">Creepster</option>
-                            <option value="DMSans">DM Sans</option>
-                            <option value="IndieFlower">Indie Flower</option>
-                            <option value="Lora">Lora</option>
-                            <option value="Oswald">Oswald</option>
-                            <option value="Pacifico-Regular">Pacifico</option>
-                            <option value="Playfair">Playfair</option>
-                            <option value="RobotoSlab">Roboto Slab</option>
-                            <option value="SairaStencil">Saira Stencil</option>
-                            <option value="Satisfy-Regular">Satisfy</option>
-                            <option value="Cinzel-VariableFont">Cinzel</option>
-                            <option value="CinzelDecorative-Regular">Cinzel Decorative</option>
-                        </select>
+                        <label>Primary Microphone:</label>
+                        <select id="mic-select" class="text-input"><option value="">Scanning...</option></select>
                     </div>
                     <div class="input-group">
-                        <label for="media-text-color">Text Color:</label>
-                        <input type="color" id="media-text-color" value="#ffffff" style="height: 40px; cursor: pointer;">
+                        <label>VDO.Ninja Guest Link (Optional):</label>
+                        <input type="text" id="vdo-link" placeholder="https://vdo.ninja/?view=XXXXXX" class="text-input">
+                    </div>
+                </div>
+
+                <div id="step-3" class="wizard-step">
+                    <div class="step-explanation">
+                        <h4>Step 2: The Waiting Room</h4>
+                        <p>This is what your audience will see while they wait for you to go live. Set your background, timer text, and pre-show music.</p>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Background (Image or Video):</label>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="countdown-bg-btn" class="secondary-btn">Browse</button>
+                            <input type="text" id="countdown-bg-path" class="text-input" readonly>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 20px;">
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Header Message:</label>
+                            <input type="text" id="countdown-text" class="text-input" value="Starting Soon...">
+                        </div>
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Timer Position:</label>
+                            <select id="countdown-position" class="text-input">
+                                <option value="top-center">Top</option>
+                                <option value="absolute-center">Center</option>
+                                <option value="bottom-center">Bottom</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 20px;">
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Font Style:</label>
+                            <select id="countdown-font" class="text-input">
+                                <option value="Anton">Anton</option>
+                                <option value="Cinzel">Cinzel</option>
+                                <option value="Cinzel Decorative">Cinzel Decorative</option>
+                                <option value="Cormorant Garamond">Cormorant Garamond</option>
+                                <option value="Creepster">Creepster</option>
+                                <option value="DM Sans">DM Sans</option>
+                                <option value="Indie Flower">Indie Flower</option>
+                                <option value="Lora">Lora</option>
+                                <option value="Orbitron">Orbitron</option>
+                                <option value="Pacifico">Pacifico</option>
+                                <option value="Playfair Display SC">Playfair Display SC</option>
+                                <option value="Press Start 2P">Press Start 2P</option>
+                                <option value="Roboto Slab">Roboto Slab</option>
+                                <option value="Saira Stencil">Saira Stencil</option>
+                                <option value="Satisfy">Satisfy</option>
+                                <option value="Unifraktur Maguntia">Unifraktur Maguntia</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Color:</label>
+                            <input type="color" id="countdown-color" value="#ffffff" style="height: 40px; cursor: pointer; border: none; padding: 0; background: transparent;">
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label for="media-bar-color">Reactive Bar Color:</label>
-                        <input type="color" id="media-bar-color" value="#00ffff" style="height: 40px; cursor: pointer;">
-                    </div>
-                </div>
-
-                <h4 style="color: #ff5500; margin-top: 30px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px;">Audio & Metadata Engine</h4>
-                <div class="input-group">
-                    <label>Music Source & Track Naming Mode:</label>
-                    <select id="media-audio-type">
-                        <option value="folder">Automated Folder (Parses ##_Title_Artist)</option>
-                        <option value="line-in">Live Line-In (Manual Entry)</option>
-                    </select>
-                </div>
-                
-                <div class="input-group" id="media-folder-group">
-                    <div style="display: flex; gap: 10px;">
-                        <button id="media-audio-btn" class="secondary-btn">Select Music Folder</button>
-                        <input type="text" id="media-audio-path" class="text-input" placeholder="No folder selected..." readonly>
-                    </div>
-                </div>
-
-                <div style="display: flex; gap: 20px; margin-top: 20px;" id="media-manual-group">
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="media-initial-song">Initial Song Title:</label>
-                        <input type="text" id="media-initial-song" class="text-input" placeholder="e.g., Hotel California">
-                    </div>
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="media-initial-artist">Initial Artist Name:</label>
-                        <input type="text" id="media-initial-artist" class="text-input" placeholder="e.g., Eagles">
-                    </div>
-                </div>
-
-                <div class="button-group" style="margin-top: 30px;">
-                    <button class="save-btn">Save Settings</button>
-                </div>
-            </section>
-
-            <section id="tab-screenshare" class="tab-content">
-                <h3>Screen Share Settings</h3>
-                <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 20px;">
-                    <em>Smart Logic: Switching to this scene during a broadcast will automatically turn your microphone ON.</em>
-                </p>
-
-                <div class="input-group">
-                    <label for="screen-source">Select Window or Screen to Broadcast:</label>
-                    <div style="display: flex; gap: 10px;">
-                        <select id="screen-source" style="flex-grow: 1;">
-                            <option value="">Fetching open windows...</option>
+                        <label>Pre-Show Audio Source:</label>
+                        <select id="countdown-audio-type" class="text-input">
+                            <option value="folder">Folder of MP3s</option>
+                            <option value="line-in">Live Line-In</option>
                         </select>
-                        <button id="refresh-screens-btn" class="secondary-btn">↻ Refresh List</button>
+                    </div>
+                    <div class="input-group" id="countdown-folder-group">
+                        <div style="display: flex; gap: 10px;">
+                            <button id="countdown-audio-btn" class="secondary-btn">Select Folder</button>
+                            <input type="text" id="countdown-audio-path" class="text-input" readonly>
+                        </div>
                     </div>
                 </div>
 
-                <div class="button-group" style="margin-top: 30px;">
-                    <button class="save-btn">Save Settings</button>
-                </div>
-            </section>
-
-            <section id="tab-output" class="tab-content">
-                <h3>Stream Output Profiles</h3>
-                
-                <h4 style="color: #ff5500; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px;">Primary Video Broadcast (RTMP)</h4>
-                <div class="input-group">
-                    <label for="rtmp-url">Server URL:</label>
-                    <input type="text" id="rtmp-url" class="text-input" placeholder="rtmp://a.rtmp.youtube.com/live2">
-                </div>
-                <div class="input-group">
-                    <label for="rtmp-key">Stream Key:</label>
-                    <input type="password" id="rtmp-key" class="text-input" placeholder="Paste your live stream key here">
-                </div>
-
-                <h4 style="color: #ff5500; margin-top: 30px; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 5px;">Audio Radio Broadcast (Zeno / Icecast)</h4>
-                <div style="display: flex; gap: 20px;">
-                    <div class="input-group" style="flex-grow: 2;">
-                        <label for="icecast-url">Server / Host:</label>
-                        <input type="text" id="icecast-url" class="text-input" placeholder="e.g., stream.zeno.fm">
+               <div id="step-4" class="wizard-step">
+                    <div class="step-explanation">
+                        <h4>Step 3: The Main Stage</h4>
+                        <p>This is your main camera view. Enter your name, choose your overlay theme, and set up your background audio.</p>
                     </div>
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="icecast-port">Port:</label>
-                        <input type="text" id="icecast-port" class="text-input" placeholder="80">
+
+                    <div style="display: flex; gap: 20px;">
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Host Name:</label>
+                            <input type="text" id="host-name-input" class="text-input" value="Host Name">
+                        </div>
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Show Name:</label>
+                            <input type="text" id="show-name-input" class="text-input" value="Live Broadcast">
+                        </div>
                     </div>
-                </div>
-                <div style="display: flex; gap: 20px;">
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="icecast-mount">Mountpoint:</label>
-                        <input type="text" id="icecast-mount" class="text-input" placeholder="/stream">
+                    <div class="input-group">
+                        <label>Overlay Theme:</label>
+                        <select id="host-theme" class="text-input">
+                            <option value="cyberpunk">Cyberpunk</option>
+                            <option value="neon">Neon</option>
+                            <option value="retro-arcade">Retro-Arcade</option>
+                        </select>
                     </div>
-                    <div class="input-group" style="flex-grow: 1;">
-                        <label for="icecast-pass">Source Password:</label>
-                        <input type="password" id="icecast-pass" class="text-input" placeholder="Radio broadcaster password">
+                    
+                    <h4 style="color: #ff5500; margin-top: 20px; border-bottom: 1px solid #333; padding-bottom: 5px;">Background Audio (Auto-Ducks to 1%)</h4>
+                    <div class="input-group">
+                        <label>Audio Source:</label>
+                        <select id="host-audio-type" class="text-input">
+                            <option value="folder">Folder of MP3s</option>
+                            <option value="line-in">Live Line-In</option>
+                        </select>
+                    </div>
+                    <div class="input-group" id="host-folder-group">
+                        <div style="display: flex; gap: 10px;">
+                            <button id="host-audio-btn" class="secondary-btn">Select Music Folder</button>
+                            <input type="text" id="host-audio-path" class="text-input" readonly>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 20px; margin-top: 20px;">
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Initial Song Title:</label>
+                            <input type="text" id="host-initial-song" class="text-input" placeholder="e.g., Bohemian Rhapsody">
+                        </div>
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Initial Artist Name:</label>
+                            <input type="text" id="host-initial-artist" class="text-input" placeholder="e.g., Queen">
+                        </div>
                     </div>
                 </div>
 
-                <div class="button-group" style="margin-top: 40px;">
-                    <button id="save-all-btn" class="save-btn" style="width: 100%; font-size: 1.2rem; padding: 15px;">💾 Save All Configuration Settings</button>
-                </div>
-            </section>
+                <div id="step-5" class="wizard-step">
+                    <div class="step-explanation">
+                        <h4>Step 4: The DJ Booth</h4>
+                        <p>This is the scene for playing music. Set up the automated folder where Stream Suite will read your tracks.</p>
+                    </div>
 
-        </main>
+                    <div class="mp3-guide">
+                        <h4 style="margin:0 0 10px 0; color: #fff;">⚠️ CRITICAL: How to Name Your MP3s</h4>
+                        <p style="margin:0; color: #ccc;">For the graphics engine to display the correct song info on screen, your files MUST be named exactly like this:</p>
+                        <p style="margin: 10px 0 0 0; text-align: center;"><code>01_Song Title_Artist Name.mp3</code></p>
+                    </div>
+
+                    <div class="input-group" style="margin-top: 20px;">
+                        <label>Music Folder:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="media-audio-btn" class="secondary-btn">Select MP3 Folder</button>
+                            <input type="text" id="media-audio-path" class="text-input" readonly>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>Background Visual (Static or Looping Video):</label>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="media-bg-btn" class="secondary-btn">Browse</button>
+                            <input type="text" id="media-bg-path" class="text-input" readonly>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 20px;">
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Overlay Font:</label>
+                            <select id="media-font" class="text-input">
+                                <option value="Anton">Anton</option>
+                                <option value="Cinzel">Cinzel</option>
+                                <option value="Cinzel Decorative">Cinzel Decorative</option>
+                                <option value="Cormorant Garamond">Cormorant Garamond</option>
+                                <option value="Creepster">Creepster</option>
+                                <option value="DM Sans">DM Sans</option>
+                                <option value="Indie Flower">Indie Flower</option>
+                                <option value="Lora">Lora</option>
+                                <option value="Orbitron">Orbitron</option>
+                                <option value="Pacifico">Pacifico</option>
+                                <option value="Playfair Display SC">Playfair Display SC</option>
+                                <option value="Press Start 2P">Press Start 2P</option>
+                                <option value="Roboto Slab">Roboto Slab</option>
+                                <option value="Saira Stencil">Saira Stencil</option>
+                                <option value="Satisfy">Satisfy</option>
+                                <option value="Unifraktur Maguntia">Unifraktur Maguntia</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Text Color:</label>
+                            <input type="color" id="media-text-color" value="#ffffff" style="height: 40px; cursor: pointer; border: none; padding: 0; background: transparent;">
+                        </div>
+                        <div class="input-group">
+                            <label>Reactive EQ Bar Color:</label>
+                            <input type="color" id="media-bar-color" value="#00ffff" style="height: 40px; cursor: pointer; border: none; padding: 0; background: transparent;">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 20px; margin-top: 20px;">
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Initial Song Title (Fallback):</label>
+                            <input type="text" id="media-initial-song" class="text-input" placeholder="e.g., Hotel California">
+                        </div>
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Initial Artist Name (Fallback):</label>
+                            <input type="text" id="media-initial-artist" class="text-input" placeholder="e.g., Eagles">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-6" class="wizard-step">
+                    <div class="step-explanation">
+                        <h4>Step 5: Screen Share</h4>
+                        <p>If you plan to show a website, presentation, or specific window during the show, select it here.</p>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Select Window or Screen:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="screen-source" style="flex-grow: 1;" class="text-input"><option value="">Fetching...</option></select>
+                            <button id="refresh-screens-btn" class="secondary-btn">↻ Refresh</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="step-7" class="wizard-step">
+                    <div class="step-explanation">
+                        <h4>Step 6: The Keys</h4>
+                        <p>The final step! Paste your stream keys, audio server info, and chat URLs. When you click Launch, Stream Suite will open your tools.</p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-bottom: 25px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid #444; align-items: center;">
+                        <span style="font-size: 1.5rem;">💾</span>
+                        <select id="profile-select" style="flex-grow: 1;" class="text-input">
+                            <option value="">-- Load Saved Profile --</option>
+                        </select>
+                        <input type="text" id="profile-name-input" class="text-input" placeholder="New Profile Name" style="width: 150px;">
+                        <button id="btn-save-profile" class="secondary-btn" style="background: #2a6f97; color: white;">Save Current</button>
+                        <button id="btn-delete-profile" class="secondary-btn" style="background: #cc0000;">🗑️ Delete</button>
+                    </div>
+
+                    <h4 style="color: #ff5500; border-bottom: 1px solid #333; padding-bottom: 5px;">Video (Restream / YouTube)</h4>
+                    <div class="input-group">
+                        <label>RTMP URL:</label>
+                        <input type="text" id="rtmp-url" class="text-input" placeholder="rtmp://a.rtmp.youtube.com/live2">
+                    </div>
+                    <div class="input-group">
+                        <label>Stream Key:</label>
+                        <input type="password" id="rtmp-key" class="text-input">
+                    </div>
+
+                    <h4 style="color: #ff5500; margin-top: 20px; border-bottom: 1px solid #333; padding-bottom: 5px;">Audio (Icecast / Zeno)</h4>
+                    <div style="display: flex; gap: 10px;">
+                        <div class="input-group" style="flex-grow: 2;">
+                            <label>Server URL:</label>
+                            <input type="text" id="icecast-url" class="text-input">
+                        </div>
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Mountpoint:</label>
+                            <input type="text" id="icecast-mount" class="text-input" placeholder="/stream">
+                        </div>
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Password:</label>
+                            <input type="password" id="icecast-pass" class="text-input">
+                        </div>
+                    </div>
+
+                    <h4 style="color: #ff5500; margin-top: 20px; border-bottom: 1px solid #333; padding-bottom: 5px;">Chat Embed URLs</h4>
+                    <div class="input-group">
+                        <label>Restream.io Chat URL:</label>
+                        <input type="text" id="restream-chat" class="text-input">
+                    </div>
+                    <div class="input-group">
+                        <label>Embers of Light Chat URL:</label>
+                        <input type="text" id="embers-chat" class="text-input">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="wizard-footer">
+                <button id="btn-back" class="secondary-btn" style="visibility: hidden;">← Back</button>
+                <button id="btn-next" class="primary-btn">Next Step →</button>
+                <button id="btn-deploy" class="primary-btn" style="display: none; background: #00aa00; font-size: 1.2rem; padding: 10px 20px;">🚀 Launch Studio</button>
+            </div>
+
+        </div>
     </div>
 
     <script src="renderer.js"></script>

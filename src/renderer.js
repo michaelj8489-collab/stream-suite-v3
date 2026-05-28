@@ -1,319 +1,328 @@
 const { ipcRenderer } = require('electron');
 
-async function runDiagnostics() {
-    const statusDiv = document.getElementById('hardware-status');
-    
-    // Call the backend function we set up in main.js
+// ==========================================
+// 0. WINDOW CONTROLS
+// ==========================================
+document.getElementById('min-btn')?.addEventListener('click', () => ipcRenderer.send('window-control', 'minimize'));
+document.getElementById('close-btn')?.addEventListener('click', () => ipcRenderer.send('window-control', 'close'));
+
+// ==========================================
+// 1. HARDWARE & NETWORK DIAGNOSTICS
+// ==========================================
+const btnCheckPc = document.getElementById('check-pc-btn');
+const statusDiv = document.getElementById('hardware-status');
+
+btnCheckPc.addEventListener('click', async () => {
+    statusDiv.innerHTML = '<span style="color: #ff5500;">Checking memory and CPU...</span>';
     const specs = await ipcRenderer.invoke('get-hardware-info');
+    let message = `Detected: <strong>${specs.totalRAM}GB RAM</strong> | <strong>${specs.cpuCores} Cores</strong><br>`;
     
-    let message = `System Detected: <strong>${specs.totalRAM}GB RAM</strong> | <strong>${specs.cpuCores} Cores</strong><br><br>`;
-    
-    // The 8GB Constraint Logic
     if (specs.totalRAM < 7.5) {
-        message += `<span style="color: #ff5555;">Warning: System memory is low. Please close background apps before going live to prevent frame drops.</span>`;
+        message += `<span style="color: #ff5555;">Warning: System memory is low. Close other apps before going live.</span>`;
     } else {
-        message += `<span style="color: #55ff55;">Hardware Check Passed. Ready for Broadcast.</span>`;
+        message += `<span style="color: #55ff55;">✅ Your computer is ready to broadcast!</span>`;
     }
-    
     statusDiv.innerHTML = message;
-}
+});
 
-runDiagnostics();
+const btnCheckNet = document.getElementById('check-net-btn');
+const netStatusDiv = document.getElementById('network-status');
 
-// --- Hardware Device Scanner ---
+btnCheckNet.addEventListener('click', () => {
+    netStatusDiv.innerHTML = '<span style="color: #ff5500;">Pinging servers...</span>';
+    setTimeout(() => {
+        if (navigator.onLine) {
+            netStatusDiv.innerHTML = `<span style="color: #55ff55;">✅ You are connected to the internet!</span>`;
+        } else {
+            netStatusDiv.innerHTML = `<span style="color: #ff5555;">⚠️ No internet connection detected. Please check your WiFi.</span>`;
+        }
+    }, 800); 
+});
+
+// --- Device Scanner (Runs in background for Step 2) ---
 const cameraSelect = document.getElementById('camera-select');
 const micSelect = document.getElementById('mic-select');
 const rescanBtn = document.getElementById('rescan-btn');
 
 async function getConnectedDevices() {
     try {
-        // Clear current options
         cameraSelect.innerHTML = '';
         micSelect.innerHTML = '';
-
-        // Request permission to read device labels (Electron needs this to see the real names)
         await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-        
-        // Fetch all devices
         const devices = await navigator.mediaDevices.enumerateDevices();
         
         const cameras = devices.filter(device => device.kind === 'videoinput');
         const mics = devices.filter(device => device.kind === 'audioinput');
 
-        // Populate Cameras
-        if (cameras.length === 0) {
-            cameraSelect.innerHTML = '<option value="">No Camera Detected</option>';
-        } else {
-            cameras.forEach(camera => {
-                const option = document.createElement('option');
-                option.value = camera.deviceId;
-                option.text = camera.label || `Camera ${cameraSelect.length + 1}`;
-                cameraSelect.appendChild(option);
-            });
-        }
+        if (cameras.length === 0) cameraSelect.innerHTML = '<option value="">No Camera Detected</option>';
+        else cameras.forEach(cam => cameraSelect.appendChild(new Option(cam.label || `Camera ${cameraSelect.length + 1}`, cam.deviceId)));
 
-        // Populate Microphones
-        if (mics.length === 0) {
-            micSelect.innerHTML = '<option value="">No Microphone Detected</option>';
-        } else {
-            mics.forEach(mic => {
-                // Filter out the "Default" and "Communications" duplicates Windows sometimes creates
-                if (mic.deviceId !== 'default' && mic.deviceId !== 'communications') {
-                    const option = document.createElement('option');
-                    option.value = mic.deviceId;
-                    option.text = mic.label || `Microphone ${micSelect.length + 1}`;
-                    micSelect.appendChild(option);
-                }
-            });
-        }
+        if (mics.length === 0) micSelect.innerHTML = '<option value="">No Microphone Detected</option>';
+        else mics.forEach(mic => {
+            if (mic.deviceId !== 'default' && mic.deviceId !== 'communications') {
+                micSelect.appendChild(new Option(mic.label || `Microphone ${micSelect.length + 1}`, mic.deviceId));
+            }
+        });
     } catch (error) {
         console.error('Error fetching devices:', error);
-        cameraSelect.innerHTML = '<option value="">Error detecting cameras</option>';
-        micSelect.innerHTML = '<option value="">Error detecting microphones</option>';
     }
 }
-
-// Hook up the Rescan Button
 rescanBtn.addEventListener('click', () => {
     cameraSelect.innerHTML = '<option value="">Scanning...</option>';
     micSelect.innerHTML = '<option value="">Scanning...</option>';
     getConnectedDevices();
 });
-
-// Run scanner on startup
 getConnectedDevices();
 
-// --- Launch Stage Logic ---
-const launchBtn = document.getElementById('launch-stage-btn');
+// ==========================================
+// 2. WIZARD NAVIGATION ENGINE
+// ==========================================
+let currentStep = 1;
+const totalSteps = 7;
+const btnNext = document.getElementById('btn-next');
+const btnBack = document.getElementById('btn-back');
+const btnDeploy = document.getElementById('btn-deploy');
+const progressText = document.getElementById('wizard-progress');
 
-// Check if both dropdowns have a valid selection
-function checkInputs() {
-    if (cameraSelect.value !== '' && micSelect.value !== '') {
-        launchBtn.disabled = false;
+const stepTitles = [
+    "Welcome to Stream Suite",
+    "Hardware & Inputs",
+    "Pre-Show Countdown",
+    "Live Host Settings",
+    "Media Player Mode",
+    "Screen Share Settings",
+    "Stream Output Destinations"
+];
+
+function updateWizard() {
+    document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active-step'));
+    document.getElementById(`step-${currentStep}`).classList.add('active-step');
+    
+    progressText.innerText = `Step ${currentStep} of ${totalSteps}: ${stepTitles[currentStep - 1]}`;
+
+    btnBack.style.visibility = (currentStep === 1) ? 'hidden' : 'visible';
+    
+    if (currentStep === totalSteps) {
+        btnNext.style.display = 'none';
+        btnDeploy.style.display = 'block';
     } else {
-        launchBtn.disabled = true;
+        btnNext.style.display = 'block';
+        btnDeploy.style.display = 'none';
     }
 }
 
-// Listen for changes on the dropdowns
-cameraSelect.addEventListener('change', checkInputs);
-micSelect.addEventListener('change', checkInputs);
-
-// When Launch is clicked, send the MASTER config to the backend
-launchBtn.addEventListener('click', () => {
-    // Fallback: If they haven't hit save yet, just grab the current hardware
-    if (Object.keys(globalStreamConfig).length === 0) {
-        globalStreamConfig.cameraId = cameraSelect.value;
-        globalStreamConfig.micId = micSelect.value;
+btnNext.addEventListener('click', () => {
+    if (currentStep === 2) {
+        if (cameraSelect.value === '' || micSelect.value === '') {
+            alert("⚠️ Please select both a Primary Camera and a Primary Microphone from the dropdowns before continuing.");
+            return;
+        }
     }
-    
-    ipcRenderer.send('launch-main-stage', globalStreamConfig);
-});
-
-// --- Tab Navigation Logic ---
-const navItems = document.querySelectorAll('.nav-links li');
-const tabContents = document.querySelectorAll('.tab-content');
-
-navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        // 1. Remove active class from all nav items and tabs
-        navItems.forEach(nav => nav.classList.remove('active'));
-        tabContents.forEach(tab => tab.classList.remove('active-tab'));
-
-        // 2. Add active class to the clicked nav item
-        item.classList.add('active');
-
-        // 3. Find the matching tab content and show it
-        const targetId = item.getAttribute('data-target');
-        document.getElementById(targetId).classList.add('active-tab');
-    });
-});
-
-// --- Scene 1: Countdown Controls ---
-const countdownBgBtn = document.getElementById('countdown-bg-btn');
-const countdownBgPath = document.getElementById('countdown-bg-path');
-const countdownAudioType = document.getElementById('countdown-audio-type');
-const countdownFolderGroup = document.getElementById('countdown-folder-group');
-const countdownAudioBtn = document.getElementById('countdown-audio-btn');
-const countdownAudioPath = document.getElementById('countdown-audio-path');
-
-// 1. Browse for Background Media
-countdownBgBtn.addEventListener('click', async () => {
-    const filePath = await ipcRenderer.invoke('dialog:openFile');
-    if (filePath) {
-        countdownBgPath.value = filePath;
+    if (currentStep < totalSteps) {
+        currentStep++;
+        updateWizard();
     }
 });
 
-// 2. Toggle Audio Input UI (Folder vs Line-In)
-countdownAudioType.addEventListener('change', (e) => {
-    if (e.target.value === 'folder') {
-        countdownFolderGroup.style.display = 'block';
-    } else {
-        countdownFolderGroup.style.display = 'none';
-        countdownAudioPath.value = ''; // Clear path if line-in is chosen
+btnBack.addEventListener('click', () => {
+    if (currentStep > 1) {
+        currentStep--;
+        updateWizard();
     }
 });
 
-// 3. Browse for Audio Folder
-countdownAudioBtn.addEventListener('click', async () => {
-    const folderPath = await ipcRenderer.invoke('dialog:openDirectory');
-    if (folderPath) {
-        countdownAudioPath.value = folderPath;
+// ==========================================
+// 3. FILE BROWSER LOGIC & SCREEN REFRESH
+// ==========================================
+function setupFileBrowser(btnId, inputId, isDirectory = false) {
+    const btn = document.getElementById(btnId);
+    if (btn) {
+        btn.addEventListener('click', async () => {
+            const path = await ipcRenderer.invoke(isDirectory ? 'dialog:openDirectory' : 'dialog:openFile');
+            if (path) document.getElementById(inputId).value = path;
+        });
+    }
+}
+
+setupFileBrowser('countdown-bg-btn', 'countdown-bg-path');
+setupFileBrowser('countdown-audio-btn', 'countdown-audio-path', true);
+setupFileBrowser('host-audio-btn', 'host-audio-path', true);
+setupFileBrowser('media-bg-btn', 'media-bg-path');
+setupFileBrowser('media-audio-btn', 'media-audio-path', true);
+
+['countdown', 'host', 'media'].forEach(scene => {
+    const typeSelect = document.getElementById(`${scene}-audio-type`);
+    const folderGroup = document.getElementById(`${scene}-folder-group`);
+    if (typeSelect && folderGroup) {
+        typeSelect.addEventListener('change', (e) => {
+            folderGroup.style.display = (e.target.value === 'folder') ? 'block' : 'none';
+            if (e.target.value !== 'folder') document.getElementById(`${scene}-audio-path`).value = '';
+        });
     }
 });
 
-// --- Scene 2: Live Host Controls ---
-const hostAudioType = document.getElementById('host-audio-type');
-const hostFolderGroup = document.getElementById('host-folder-group');
-const hostAudioBtn = document.getElementById('host-audio-btn');
-const hostAudioPath = document.getElementById('host-audio-path');
-
-// 1. Toggle Audio Input UI (Folder vs Line-In)
-hostAudioType.addEventListener('change', (e) => {
-    if (e.target.value === 'folder') {
-        hostFolderGroup.style.display = 'block';
-    } else {
-        hostFolderGroup.style.display = 'none';
-        hostAudioPath.value = ''; // Clear path if line-in is chosen
-    }
-});
-
-// 2. Browse for Audio Folder
-hostAudioBtn.addEventListener('click', async () => {
-    const folderPath = await ipcRenderer.invoke('dialog:openDirectory');
-    if (folderPath) {
-        hostAudioPath.value = folderPath;
-    }
-});
-
-// --- Scene 3: Media Player Controls ---
-const mediaBgBtn = document.getElementById('media-bg-btn');
-const mediaBgPath = document.getElementById('media-bg-path');
-const mediaAudioType = document.getElementById('media-audio-type');
-const mediaFolderGroup = document.getElementById('media-folder-group');
-const mediaAudioBtn = document.getElementById('media-audio-btn');
-const mediaAudioPath = document.getElementById('media-audio-path');
-const mediaManualGroup = document.getElementById('media-manual-group');
-
-// 1. Browse for Background Media
-mediaBgBtn.addEventListener('click', async () => {
-    const filePath = await ipcRenderer.invoke('dialog:openFile');
-    if (filePath) {
-        mediaBgPath.value = filePath;
-    }
-});
-
-// 2. Toggle Audio Input UI (Automated Folder vs Line-In)
-mediaAudioType.addEventListener('change', (e) => {
-    if (e.target.value === 'folder') {
-        mediaFolderGroup.style.display = 'block';
-        // Optional: you can hide manual entry when in folder mode, 
-        // but keeping it visible allows for the "Initial Track Override" you requested in the blueprint!
-    } else {
-        mediaFolderGroup.style.display = 'none';
-        mediaAudioPath.value = ''; // Clear path if line-in is chosen
-    }
-});
-
-// 3. Browse for Audio Folder
-mediaAudioBtn.addEventListener('click', async () => {
-    const folderPath = await ipcRenderer.invoke('dialog:openDirectory');
-    if (folderPath) {
-        mediaAudioPath.value = folderPath;
-    }
-});
-// --- Scene 4: Screen Share Controls ---
 const screenSourceSelect = document.getElementById('screen-source');
-const refreshScreensBtn = document.getElementById('refresh-screens-btn');
-
 async function populateScreenSources() {
     screenSourceSelect.innerHTML = '<option value="">Loading sources...</option>';
-    
     try {
-        const sources = await ipcRenderer.invoke('get-screen-sources');
-        screenSourceSelect.innerHTML = ''; // Clear loading text
-        
+        const sources = await ipcRenderer.invoke('get-desktop-sources');
+        screenSourceSelect.innerHTML = ''; 
         sources.forEach(source => {
             const option = document.createElement('option');
             option.value = source.id;
-            // Add a little prefix to easily tell screens from windows
             option.text = source.id.startsWith('screen') ? `🖥️ Monitor: ${source.name}` : `🪟 Window: ${source.name}`;
             screenSourceSelect.appendChild(option);
         });
-    } catch (error) {
-        console.error('Error fetching screen sources:', error);
-        screenSourceSelect.innerHTML = '<option value="">Error loading sources</option>';
-    }
+    } catch (error) { screenSourceSelect.innerHTML = '<option value="">Error loading sources</option>'; }
 }
-
-// Populate when the refresh button is clicked
-refreshScreensBtn.addEventListener('click', populateScreenSources);
-
-// Also populate them once on initial startup
+document.getElementById('refresh-screens-btn').addEventListener('click', populateScreenSources);
 populateScreenSources();
 
-// --- Global State & Saving ---
-const saveAllBtn = document.getElementById('save-all-btn');
-let globalStreamConfig = {};
+// ==========================================
+// 4. PROFILE MANAGER ENGINE (NEW)
+// ==========================================
+const profileSelect = document.getElementById('profile-select');
+const profileNameInput = document.getElementById('profile-name-input');
+const btnSaveProfile = document.getElementById('btn-save-profile');
+const btnDeleteProfile = document.getElementById('btn-delete-profile');
 
-saveAllBtn.addEventListener('click', () => {
-    // Collect every setting from across all tabs
-    globalStreamConfig = {
-        // Hardware
-        cameraId: document.getElementById('camera-select').value,
-        micId: document.getElementById('mic-select').value,
-        vdoLink: document.getElementById('vdo-link').value,
-        
-        // Scene 1: Countdown
-        countdownBg: document.getElementById('countdown-bg-path').value,
-        countdownPos: document.getElementById('countdown-position').value,
-        countdownText: document.getElementById('countdown-text').value,
-        countdownFont: document.getElementById('countdown-font').value,
-        countdownColor: document.getElementById('countdown-color').value,
-        countdownAudioType: document.getElementById('countdown-audio-type').value,
-        countdownAudioPath: document.getElementById('countdown-audio-path').value,
+// Load saved profiles from LocalStorage on startup
+function loadProfilesDropdown() {
+    const profiles = JSON.parse(localStorage.getItem('streamSuiteProfiles')) || {};
+    profileSelect.innerHTML = '<option value="">-- Load Saved Profile --</option>';
+    Object.keys(profiles).forEach(name => {
+        profileSelect.appendChild(new Option(name, name));
+    });
+}
 
-        // Scene 2: Live Host
-        hostName: document.getElementById('host-name-input').value,
-        showName: document.getElementById('show-name-input').value,
-        hostTheme: document.getElementById('host-theme').value,
-        hostAudioType: document.getElementById('host-audio-type').value,
-        hostAudioPath: document.getElementById('host-audio-path').value,
-        hostInitSong: document.getElementById('host-initial-song').value,
-        hostInitArtist: document.getElementById('host-initial-artist').value,
-
-        // Scene 3: Media Player
-        mediaBg: document.getElementById('media-bg-path').value,
-        mediaFont: document.getElementById('media-font').value,
-        mediaTextColor: document.getElementById('media-text-color').value,
-        mediaBarColor: document.getElementById('media-bar-color').value,
-        mediaAudioType: document.getElementById('media-audio-type').value,
-        mediaAudioPath: document.getElementById('media-audio-path').value,
-        mediaInitSong: document.getElementById('media-initial-song').value,
-        mediaInitArtist: document.getElementById('media-initial-artist').value,
-
-        // Scene 4: Screen Share
-        screenSource: document.getElementById('screen-source').value,
-
-        // Output Profiles
+btnSaveProfile.addEventListener('click', () => {
+    let name = profileNameInput.value.trim();
+    if (!name) { alert("Please enter a name for this profile."); return; }
+    
+    // Gather current inputs from Step 7
+    const currentData = {
         rtmpUrl: document.getElementById('rtmp-url').value,
         rtmpKey: document.getElementById('rtmp-key').value,
         icecastUrl: document.getElementById('icecast-url').value,
-        icecastPort: document.getElementById('icecast-port').value,
         icecastMount: document.getElementById('icecast-mount').value,
-        icecastPass: document.getElementById('icecast-pass').value
+        icecastPass: document.getElementById('icecast-pass').value,
+        restreamChatUrl: document.getElementById('restream-chat').value,
+        embersChatUrl: document.getElementById('embers-chat').value
     };
 
-    // Give visual feedback that it saved
-    const originalText = saveAllBtn.innerHTML;
-    saveAllBtn.innerHTML = "✅ Settings Saved!";
-    saveAllBtn.style.backgroundColor = "#28a745";
+    const profiles = JSON.parse(localStorage.getItem('streamSuiteProfiles')) || {};
+    profiles[name] = currentData;
+    localStorage.setItem('streamSuiteProfiles', JSON.stringify(profiles));
     
-    setTimeout(() => {
-        saveAllBtn.innerHTML = originalText;
-        saveAllBtn.style.backgroundColor = ""; // Resets to CSS default
-    }, 2000);
+    loadProfilesDropdown();
+    profileSelect.value = name;
+    alert(`Profile '${name}' saved successfully!`);
+});
 
-    console.log("Master Configuration Saved:", globalStreamConfig);
+profileSelect.addEventListener('change', (e) => {
+    const selectedName = e.target.value;
+    if (!selectedName) return;
+
+    const profiles = JSON.parse(localStorage.getItem('streamSuiteProfiles')) || {};
+    const data = profiles[selectedName];
+    if (data) {
+        document.getElementById('rtmp-url').value = data.rtmpUrl || '';
+        document.getElementById('rtmp-key').value = data.rtmpKey || '';
+        document.getElementById('icecast-url').value = data.icecastUrl || '';
+        document.getElementById('icecast-mount').value = data.icecastMount || '';
+        document.getElementById('icecast-pass').value = data.icecastPass || '';
+        document.getElementById('restream-chat').value = data.restreamChatUrl || '';
+        document.getElementById('embers-chat').value = data.embersChatUrl || '';
+        profileNameInput.value = selectedName;
+    }
+});
+
+btnDeleteProfile.addEventListener('click', () => {
+    const selectedName = profileSelect.value;
+    if (!selectedName) { alert("Select a profile to delete."); return; }
+    if (!confirm(`Are you sure you want to delete the profile '${selectedName}'?`)) return;
+
+    const profiles = JSON.parse(localStorage.getItem('streamSuiteProfiles')) || {};
+    delete profiles[selectedName];
+    localStorage.setItem('streamSuiteProfiles', JSON.stringify(profiles));
+    
+    // Clear inputs
+    document.getElementById('rtmp-url').value = '';
+    document.getElementById('rtmp-key').value = '';
+    document.getElementById('icecast-url').value = '';
+    document.getElementById('icecast-mount').value = '';
+    document.getElementById('icecast-pass').value = '';
+    document.getElementById('restream-chat').value = '';
+    document.getElementById('embers-chat').value = '';
+    profileNameInput.value = '';
+    
+    loadProfilesDropdown();
+});
+
+// Initialize dropdown on load
+loadProfilesDropdown();
+
+// ==========================================
+// 5. THE MASTER DEPLOYMENT ENGINE
+// ==========================================
+btnDeploy.addEventListener('click', () => {
+    const micSelectElement = document.getElementById('mic-select');
+    const selectedMicName = micSelectElement.options[micSelectElement.selectedIndex]?.text || 'Default';
+
+    // Parse the Icecast port from the URL if provided (e.g. http://server.com:8000)
+    const rawIcecastUrl = document.getElementById('icecast-url')?.value || '';
+    let parsedIcecastUrl = rawIcecastUrl;
+    let parsedIcecastPort = '80'; // Default
+    
+    if (rawIcecastUrl.includes(':') && !rawIcecastUrl.startsWith('http')) {
+        const parts = rawIcecastUrl.split(':');
+        parsedIcecastUrl = parts[0];
+        parsedIcecastPort = parts[1].replace(/\D/g, ''); // Extract just the numbers
+    } else if (rawIcecastUrl.startsWith('http')) {
+        try {
+            const urlObj = new URL(rawIcecastUrl);
+            parsedIcecastUrl = urlObj.hostname;
+            parsedIcecastPort = urlObj.port || (urlObj.protocol === 'https:' ? '443' : '80');
+        } catch(e) { console.error("Invalid URL format"); }
+    }
+
+    const globalStreamConfig = {
+        cameraId: document.getElementById('camera-select')?.value || '',
+        micId: micSelectElement?.value || '',
+        micName: selectedMicName,
+        vdoLink: document.getElementById('vdo-link')?.value || '',
+        countdownBg: document.getElementById('countdown-bg-path')?.value || '',
+        countdownPos: document.getElementById('countdown-position')?.value || '',
+        countdownText: document.getElementById('countdown-text')?.value || '',
+        countdownFont: document.getElementById('countdown-font')?.value || '',
+        countdownColor: document.getElementById('countdown-color')?.value || '',
+        countdownAudioType: document.getElementById('countdown-audio-type')?.value || '',
+        countdownAudioPath: document.getElementById('countdown-audio-path')?.value || '',
+        hostName: document.getElementById('host-name-input')?.value || '',
+        showName: document.getElementById('show-name-input')?.value || '',
+        hostTheme: document.getElementById('host-theme')?.value || '',
+        hostAudioType: document.getElementById('host-audio-type')?.value || '',
+        hostAudioPath: document.getElementById('host-audio-path')?.value || '',
+        hostInitSong: document.getElementById('host-initial-song')?.value || '',
+        hostInitArtist: document.getElementById('host-initial-artist')?.value || '',
+        mediaBg: document.getElementById('media-bg-path')?.value || '',
+        mediaFont: document.getElementById('media-font')?.value || '',
+        mediaTextColor: document.getElementById('media-text-color')?.value || '',
+        mediaBarColor: document.getElementById('media-bar-color')?.value || '',
+        mediaAudioType: document.getElementById('media-audio-type')?.value || '',
+        mediaAudioPath: document.getElementById('media-audio-path')?.value || '',
+        mediaInitSong: document.getElementById('media-initial-song')?.value || '',
+        mediaInitArtist: document.getElementById('media-initial-artist')?.value || '',
+        screenSource: document.getElementById('screen-source')?.value || '',
+        rtmpUrl: document.getElementById('rtmp-url')?.value || '',
+        rtmpKey: document.getElementById('rtmp-key')?.value || '',
+        icecastUrl: parsedIcecastUrl,
+        icecastPort: parsedIcecastPort,
+        icecastMount: document.getElementById('icecast-mount')?.value || '',
+        icecastPass: document.getElementById('icecast-pass')?.value || '',
+        restreamChatUrl: document.getElementById('restream-chat')?.value || '',
+        embersChatUrl: document.getElementById('embers-chat')?.value || ''
+    };
+
+    ipcRenderer.send('launch-main-stage', globalStreamConfig);
 });
