@@ -38,12 +38,6 @@ body {
     font-family: 'Cinzel', sans-serif;
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    border: 2px solid #333; 
-    box-sizing: border-box;
 }
 
 #drag-region {
@@ -59,15 +53,24 @@ body {
 /* =========================================
    CORE SCENE LAYOUT (THE FIX)
 ========================================= */
-.scene { 
-    position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-    opacity: 0; visibility: hidden; 
-    transition: opacity 0.8s ease-in-out, visibility 0.8s; 
-    z-index: 1; 
+/* Apply this to the individual scene containers (Countdown, Host, Media) */
+.broadcast-scene {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.6s ease-in-out; /* Smooth 0.6 second crossfade */
+    pointer-events: none; /* Prevents hidden scenes from blocking clicks */
+    z-index: 1;
 }
-.scene.active { 
-    opacity: 1; visibility: visible; 
-    z-index: 5; 
+
+/* The active scene */
+.scene-active {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 5 !important;
 }
 
 /* Fullscreen Camera */
@@ -107,10 +110,20 @@ button { padding: 10px 20px; font-size: 1rem; border: none; border-radius: 4px; 
     z-index: 5;
 }
 #host-lower-third { 
-    position: absolute;
+    position: absolute !important;
+    bottom: 30px !important;
+    left: 30px !important;
+    width: auto !important;
+    max-width: 450px !important; /* STRICT limit so it never takes up 2/3 of the screen */
+    padding: 15px 25px !important;
+    transform: none !important; /* Remove any previous centering logic */
+    top: auto !important;
+    right: auto !important;
     box-sizing: border-box !important; 
     z-index: 10;
 }
+#host-name-display { font-size: 32px !important; margin: 0; white-space: nowrap; }
+#show-name-display { font-size: 20px !important; margin: 0; opacity: 0.8; }
 
 /* --- 1. Cyberpunk Theme --- */
 #host-frame.theme-cyberpunk {
@@ -288,3 +301,42 @@ button { padding: 10px 20px; font-size: 1rem; border: none; border-radius: 4px; 
 .titlebar-btn { -webkit-app-region: no-drag; background: transparent; border: none; color: white; width: 45px; font-size: 16px; cursor: pointer; transition: background 0.2s; }
 .titlebar-btn:hover { background: rgba(255, 255, 255, 0.2); }
 .close-btn:hover { background: #ff4c4c; }
+
+/* =========================================
+   DYNAMIC SPONSOR OVERLAY SYSTEM
+========================================= */
+#sponsor-overlay {
+    position: absolute !important;
+    max-width: 250px; /* Limits size so it doesn't overpower the screen */
+    max-height: 150px;
+    object-fit: contain;
+    z-index: 80; /* Sits above the camera, but below the host lower-third */
+    transition: opacity 0.5s ease-in-out; /* Smooth fade effect */
+    border-radius: 8px; /* Clean professional edge */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6); /* Helps it pop off the background */
+}
+
+/* Visibility */
+.sponsor-hidden { opacity: 0; pointer-events: none; }
+.sponsor-visible { opacity: 1; }
+
+/* The 4 Corners (Using strict pixels to stay inside the 1280x720 box) */
+.pos-top-left { top: 30px !important; left: 30px !important; bottom: auto !important; right: auto !important; }
+.pos-top-right { top: 30px !important; right: 30px !important; bottom: auto !important; left: auto !important; }
+.pos-bottom-left { bottom: 120px !important; left: 30px !important; top: auto !important; right: auto !important; } /* High enough to clear the host lower-third */
+.pos-bottom-right { bottom: 30px !important; right: 30px !important; top: auto !important; left: auto !important; }
+
+.sponsor-deck .sponsor-buttons, .sponsor-deck .position-buttons {
+    display: flex; flex-wrap: wrap; gap: 5px;
+}
+.sponsor-deck button { flex: 1 1 30%; font-size: 0.8rem; padding: 5px; }
+
+/* =========================================
+   REMOTE CONTROLS WRAPPER FIX
+========================================= */
+
+#view-controls {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap; /* Ensures buttons don't squish into two lines */
+}

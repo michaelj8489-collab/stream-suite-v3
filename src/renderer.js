@@ -1,5 +1,21 @@
 const { ipcRenderer } = require('electron');
 
+// --- AUTO-FILL FOR DEMO ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Inputs are cleared out for production packaging
+    if(document.getElementById('countdown-bg-path')) document.getElementById('countdown-bg-path').value = '';
+    if(document.getElementById('countdown-audio-path')) { 
+        document.getElementById('countdown-audio-path').value = ''; 
+        document.getElementById('countdown-audio-type').value = 'folder'; 
+    }
+    if(document.getElementById('host-audio-path')) { 
+        document.getElementById('host-audio-path').value = '';
+        document.getElementById('host-audio-type').value = 'folder'; 
+    }
+    if(document.getElementById('media-bg-path')) document.getElementById('media-bg-path').value = '';
+    if(document.getElementById('media-audio-path')) document.getElementById('media-audio-path').value = '';
+});
+
 // ==========================================
 // 0. WINDOW CONTROLS
 // ==========================================
@@ -28,15 +44,21 @@ btnCheckPc.addEventListener('click', async () => {
 const btnCheckNet = document.getElementById('check-net-btn');
 const netStatusDiv = document.getElementById('network-status');
 
-btnCheckNet.addEventListener('click', () => {
-    netStatusDiv.innerHTML = '<span style="color: #ff5500;">Pinging servers...</span>';
-    setTimeout(() => {
-        if (navigator.onLine) {
-            netStatusDiv.innerHTML = `<span style="color: #55ff55;">✅ You are connected to the internet!</span>`;
-        } else {
-            netStatusDiv.innerHTML = `<span style="color: #ff5555;">⚠️ No internet connection detected. Please check your WiFi.</span>`;
-        }
-    }, 800); 
+btnCheckNet.addEventListener('click', async () => {
+    netStatusDiv.innerHTML = '<span style="color: #ff5500;">Uploading 1MB test packet...</span>';
+    
+    // Cross the bridge to run your actual backend speed test
+    const kbps = await ipcRenderer.invoke('run-speed-test');
+    
+    if (kbps > 3500) {
+        netStatusDiv.innerHTML = `<span style="color: #55ff55;">✅ Excellent! (${Math.round(kbps)} kbps) - 720p HD Ready.</span>`;
+    } else if (kbps > 1500) {
+        netStatusDiv.innerHTML = `<span style="color: #ffff55;">⚠️ Congested (${Math.round(kbps)} kbps). Auto-adjusting buffer...</span>`;
+    } else if (kbps > 0) {
+        netStatusDiv.innerHTML = `<span style="color: #ffaa00;">⚠️ Slow (${Math.round(kbps)} kbps). Safe-mode activated.</span>`;
+    } else {
+        netStatusDiv.innerHTML = `<span style="color: #ff5555;">❌ Network test failed. Check your connection.</span>`;
+    }
 });
 
 // --- Device Scanner (Runs in background for Step 2) ---
@@ -46,33 +68,73 @@ const rescanBtn = document.getElementById('rescan-btn');
 
 async function getConnectedDevices() {
     try {
-        cameraSelect.innerHTML = '';
-        micSelect.innerHTML = '';
-        await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        // Save current selections to preserve them during re-binding
+        const currentCamera = cameraSelect.value;
+        const currentMic = micSelect.value;
+
+        // Force browser to unlock device labels if they are hidden (silent request)
+        await navigator.mediaDevices.getUserMedia({ audio: true, video: true }).catch(() => console.log("Silent permission request ignored"));
+
+        // Force a fresh enumeration from the native browser API
         const devices = await navigator.mediaDevices.enumerateDevices();
         
-        const cameras = devices.filter(device => device.kind === 'videoinput');
-        const mics = devices.filter(device => device.kind === 'audioinput');
+        // Extract raw arrays
+        const cameraList = devices.filter(d => d.kind === 'videoinput');
+        const micList = devices.filter(d => d.kind === 'audioinput');
 
-        if (cameras.length === 0) cameraSelect.innerHTML = '<option value="">No Camera Detected</option>';
-        else cameras.forEach(cam => cameraSelect.appendChild(new Option(cam.label || `Camera ${cameraSelect.length + 1}`, cam.deviceId)));
+        // Clear out the old state entirely
+        cameraSelect.innerHTML = '';
+        micSelect.innerHTML = '';
 
-        if (mics.length === 0) micSelect.innerHTML = '<option value="">No Microphone Detected</option>';
-        else mics.forEach(mic => {
-            if (mic.deviceId !== 'default' && mic.deviceId !== 'communications') {
-                micSelect.appendChild(new Option(mic.label || `Microphone ${micSelect.length + 1}`, mic.deviceId));
+        // 3. Populate the Camera Dropdown
+        if (cameraList.length === 0) {
+            cameraSelect.appendChild(new Option("No Cameras Found", ""));
+        } else {
+            cameraList.forEach((camera, index) => {
+                const camOption = document.createElement('option');
+                const label = camera.label || `Camera ${index + 1}`;
+                camOption.textContent = label;
+                camOption.value = label;
+                cameraSelect.appendChild(camOption);
+            });
+            // Re-bind previous state if still available
+            if (currentCamera && Array.from(cameraSelect.options).some(opt => opt.value === currentCamera)) {
+                cameraSelect.value = currentCamera;
             }
-        });
+        }
+
+        // 4. Populate the Microphone Dropdown
+        if (micList.length === 0) {
+            micSelect.appendChild(new Option("No Mics Found", ""));
+        } else {
+            micList.forEach((mic, index) => {
+                const micOption = document.createElement('option');
+                const label = mic.label || `Mic ${index + 1}`;
+                micOption.textContent = label;
+                micOption.value = label;
+                micSelect.appendChild(micOption);
+            });
+            // Re-bind previous state if still available
+            if (currentMic && Array.from(micSelect.options).some(opt => opt.value === currentMic)) {
+                micSelect.value = currentMic;
+            }
+        }
     } catch (error) {
         console.error('Error fetching devices:', error);
     }
 }
+
 rescanBtn.addEventListener('click', () => {
     cameraSelect.innerHTML = '<option value="">Scanning...</option>';
     micSelect.innerHTML = '<option value="">Scanning...</option>';
     getConnectedDevices();
 });
+
+// Initial scan
 getConnectedDevices();
+
+// Native Hot-Plug Listener (acts like useEffect)
+navigator.mediaDevices.addEventListener('devicechange', getConnectedDevices);
 
 // ==========================================
 // 2. WIZARD NAVIGATION ENGINE
@@ -150,13 +212,55 @@ setupFileBrowser('host-audio-btn', 'host-audio-path', true);
 setupFileBrowser('media-bg-btn', 'media-bg-path');
 setupFileBrowser('media-audio-btn', 'media-audio-path', true);
 
+// State variable to hold scanned inputs
+let scannedAudioInputDevices = [];
+
 ['countdown', 'host', 'media'].forEach(scene => {
     const typeSelect = document.getElementById(`${scene}-audio-type`);
     const folderGroup = document.getElementById(`${scene}-folder-group`);
+    const lineinGroup = document.getElementById(`${scene}-linein-group`);
+    const lineinSelect = document.getElementById(`${scene}-linein-device`);
+
     if (typeSelect && folderGroup) {
-        typeSelect.addEventListener('change', (e) => {
-            folderGroup.style.display = (e.target.value === 'folder') ? 'block' : 'none';
-            if (e.target.value !== 'folder') document.getElementById(`${scene}-audio-path`).value = '';
+        typeSelect.addEventListener('change', async (e) => {
+            const isFolder = e.target.value === 'folder';
+            const isLineIn = e.target.value === 'line-in';
+            
+            // Toggle visibility
+            folderGroup.style.display = isFolder ? 'block' : 'none';
+            if (lineinGroup) {
+                lineinGroup.style.display = isLineIn ? 'block' : 'none';
+            }
+
+            if (!isFolder) document.getElementById(`${scene}-audio-path`).value = '';
+
+            // Scan and render when Line-In is selected
+            if (isLineIn && lineinSelect) {
+                lineinSelect.innerHTML = '<option value="">Scanning...</option>';
+                
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    scannedAudioInputDevices = devices.filter(d => d.kind === 'audioinput');
+                    
+                    const currentValue = lineinSelect.value;
+                    lineinSelect.innerHTML = '<option value="">-- Select Line-In Device --</option>';
+                    
+                    scannedAudioInputDevices.forEach((device, index) => {
+                        const option = document.createElement('option');
+                        const label = device.label || `Audio Input ${index + 1}`;
+                        option.textContent = label;
+                        option.value = label;
+                        lineinSelect.appendChild(option);
+                    });
+                    
+                    if (currentValue && Array.from(lineinSelect.options).some(opt => opt.value === currentValue)) {
+                        lineinSelect.value = currentValue;
+                    }
+                } catch (err) {
+                    console.error("Error scanning line-in devices:", err);
+                    lineinSelect.innerHTML = '<option value="">Error scanning devices</option>';
+                }
+            }
         });
     }
 });
@@ -203,6 +307,8 @@ btnSaveProfile.addEventListener('click', () => {
     const currentData = {
         rtmpUrl: document.getElementById('rtmp-url').value,
         rtmpKey: document.getElementById('rtmp-key').value,
+        rtmpUrl2: document.getElementById('rtmp-url-2').value,
+        rtmpKey2: document.getElementById('rtmp-key-2').value,
         icecastUrl: document.getElementById('icecast-url').value,
         icecastMount: document.getElementById('icecast-mount').value,
         icecastPass: document.getElementById('icecast-pass').value,
@@ -228,6 +334,8 @@ profileSelect.addEventListener('change', (e) => {
     if (data) {
         document.getElementById('rtmp-url').value = data.rtmpUrl || '';
         document.getElementById('rtmp-key').value = data.rtmpKey || '';
+        document.getElementById('rtmp-url-2').value = data.rtmpUrl2 || '';
+        document.getElementById('rtmp-key-2').value = data.rtmpKey2 || '';
         document.getElementById('icecast-url').value = data.icecastUrl || '';
         document.getElementById('icecast-mount').value = data.icecastMount || '';
         document.getElementById('icecast-pass').value = data.icecastPass || '';
@@ -249,6 +357,8 @@ btnDeleteProfile.addEventListener('click', () => {
     // Clear inputs
     document.getElementById('rtmp-url').value = '';
     document.getElementById('rtmp-key').value = '';
+    document.getElementById('rtmp-url-2').value = '';
+    document.getElementById('rtmp-key-2').value = '';
     document.getElementById('icecast-url').value = '';
     document.getElementById('icecast-mount').value = '';
     document.getElementById('icecast-pass').value = '';
@@ -290,6 +400,7 @@ btnDeploy.addEventListener('click', () => {
         cameraId: document.getElementById('camera-select')?.value || '',
         micId: micSelectElement?.value || '',
         micName: selectedMicName,
+        micLabel: selectedMicName,
         vdoLink: document.getElementById('vdo-link')?.value || '',
         countdownBg: document.getElementById('countdown-bg-path')?.value || '',
         countdownPos: document.getElementById('countdown-position')?.value || '',
@@ -298,11 +409,13 @@ btnDeploy.addEventListener('click', () => {
         countdownColor: document.getElementById('countdown-color')?.value || '',
         countdownAudioType: document.getElementById('countdown-audio-type')?.value || '',
         countdownAudioPath: document.getElementById('countdown-audio-path')?.value || '',
+        countdownLineInId: document.getElementById('countdown-linein-device')?.value || '',
         hostName: document.getElementById('host-name-input')?.value || '',
         showName: document.getElementById('show-name-input')?.value || '',
         hostTheme: document.getElementById('host-theme')?.value || '',
         hostAudioType: document.getElementById('host-audio-type')?.value || '',
         hostAudioPath: document.getElementById('host-audio-path')?.value || '',
+        hostLineInId: document.getElementById('host-linein-device')?.value || '',
         hostInitSong: document.getElementById('host-initial-song')?.value || '',
         hostInitArtist: document.getElementById('host-initial-artist')?.value || '',
         mediaBg: document.getElementById('media-bg-path')?.value || '',
@@ -311,11 +424,14 @@ btnDeploy.addEventListener('click', () => {
         mediaBarColor: document.getElementById('media-bar-color')?.value || '',
         mediaAudioType: document.getElementById('media-audio-type')?.value || '',
         mediaAudioPath: document.getElementById('media-audio-path')?.value || '',
+        mediaLineInId: document.getElementById('media-linein-device')?.value || '',
         mediaInitSong: document.getElementById('media-initial-song')?.value || '',
         mediaInitArtist: document.getElementById('media-initial-artist')?.value || '',
         screenSource: document.getElementById('screen-source')?.value || '',
         rtmpUrl: document.getElementById('rtmp-url')?.value || '',
         rtmpKey: document.getElementById('rtmp-key')?.value || '',
+        rtmpUrl2: document.getElementById('rtmp-url-2')?.value || '',
+        rtmpKey2: document.getElementById('rtmp-key-2')?.value || '',
         icecastUrl: parsedIcecastUrl,
         icecastPort: parsedIcecastPort,
         icecastMount: document.getElementById('icecast-mount')?.value || '',

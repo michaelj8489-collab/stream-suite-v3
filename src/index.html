@@ -158,6 +158,12 @@
                             <input type="text" id="countdown-audio-path" class="text-input" readonly>
                         </div>
                     </div>
+                    <div class="input-group" id="countdown-linein-group" style="display: none;">
+                        <label>Select Line-In Device:</label>
+                        <select id="countdown-linein-device" class="text-input">
+                            <option value="">No Line-In Selected</option>
+                        </select>
+                    </div>
                 </div>
 
                <div id="step-4" class="wizard-step">
@@ -199,6 +205,12 @@
                             <input type="text" id="host-audio-path" class="text-input" readonly>
                         </div>
                     </div>
+                    <div class="input-group" id="host-linein-group" style="display: none;">
+                        <label>Select Line-In Device:</label>
+                        <select id="host-linein-device" class="text-input">
+                            <option value="">No Line-In Selected</option>
+                        </select>
+                    </div>
                     <div style="display: flex; gap: 20px; margin-top: 20px;">
                         <div class="input-group" style="flex-grow: 1;">
                             <label>Initial Song Title:</label>
@@ -224,11 +236,24 @@
                     </div>
 
                     <div class="input-group" style="margin-top: 20px;">
+                        <label>Media Audio Source:</label>
+                        <select id="media-audio-type" class="text-input">
+                            <option value="folder">Folder of MP3s</option>
+                            <option value="line-in">Live Line-In</option>
+                        </select>
+                    </div>
+                    <div class="input-group" id="media-folder-group" style="margin-top: 10px;">
                         <label>Music Folder:</label>
                         <div style="display: flex; gap: 10px;">
                             <button id="media-audio-btn" class="secondary-btn">Select MP3 Folder</button>
                             <input type="text" id="media-audio-path" class="text-input" readonly>
                         </div>
+                    </div>
+                    <div class="input-group" id="media-linein-group" style="display: none; margin-top: 10px;">
+                        <label>Select Line-In Device:</label>
+                        <select id="media-linein-device" class="text-input">
+                            <option value="">No Line-In Selected</option>
+                        </select>
                     </div>
                     <div class="input-group">
                         <label>Background Visual (Static or Looping Video):</label>
@@ -311,14 +336,24 @@
                         <button id="btn-delete-profile" class="secondary-btn" style="background: #cc0000;">🗑️ Delete</button>
                     </div>
 
-                    <h4 style="color: #ff5500; border-bottom: 1px solid #333; padding-bottom: 5px;">Video (Restream / YouTube)</h4>
+                    <h4 style="color: #ff5500; border-bottom: 1px solid #333; padding-bottom: 5px;">Video (Facebook / Primary)</h4>
                     <div class="input-group">
-                        <label>RTMP URL:</label>
+                        <label>Primary RTMP URL:</label>
                         <input type="text" id="rtmp-url" class="text-input" placeholder="rtmp://a.rtmp.youtube.com/live2">
                     </div>
                     <div class="input-group">
-                        <label>Stream Key:</label>
+                        <label>Primary Stream Key:</label>
                         <input type="password" id="rtmp-key" class="text-input">
+                    </div>
+
+                    <h4 style="color: #ff5500; border-bottom: 1px solid #333; padding-bottom: 5px; margin-top: 20px;">Video (YouTube / Secondary)</h4>
+                    <div class="input-group">
+                        <label>Secondary RTMP URL:</label>
+                        <input type="text" id="rtmp-url-2" class="text-input" placeholder="rtmp://a.rtmp.youtube.com/live2">
+                    </div>
+                    <div class="input-group">
+                        <label>Secondary Stream Key:</label>
+                        <input type="password" id="rtmp-key-2" class="text-input">
                     </div>
 
                     <h4 style="color: #ff5500; margin-top: 20px; border-bottom: 1px solid #333; padding-bottom: 5px;">Audio (Icecast / Zeno)</h4>

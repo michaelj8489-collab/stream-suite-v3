@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Broadcast Canvas</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100vw; height: 100vh;
+            background-color: #111;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1280px 1fr;
+            grid-template-rows: 680px 1fr; 
+        }
+
+        /* Unified Drag Region CSS removed in favor of inline styles */
+        .win-btn:hover { background: #333 !important; color: #fff !important; }
+        #win-close:hover { background: #cc0000 !important; }
+
+        /* Grid Zones */
+        #zone-canvas { 
+            grid-column: 1 / 2;
+            grid-row: 1 / 2;
+            width: 1280px !important;
+            height: 640px !important;
+            position: relative !important;
+            margin-top: 40px; 
+            overflow: hidden;
+            background-color: #000;
+            cursor: none;
+        }
+        #zone-chat-global { 
+            grid-column: 2 / 3;
+            grid-row: 1 / 2;
+            display: flex;
+            flex-direction: column;
+            border-left: 2px solid #ff4500;
+            background: #111;
+            margin-top: 40px; /* Aligns with the 40px drag region */
+        }
+        #zone-chat-embers { 
+            grid-column: 2 / 3;
+            grid-row: 2 / 3;
+            display: flex;
+            flex-direction: column;
+            border-left: 2px solid #ff4500;
+            border-top: 2px solid #ff4500;
+            background: #111;
+        }
+        #zone-remote { 
+            grid-column: 1 / 2;
+            grid-row: 2 / 3;
+            display: flex;
+            flex-wrap: nowrap; 
+            overflow-x: auto; 
+            align-items: flex-start;
+            padding: 15px;
+            gap: 15px;
+            margin-top: 0 !important; /* Reset from style.css */
+        }
+
+        /* Chat Styles */
+        .chat-box {
+            flex: 1; display: flex; flex-direction: column;
+            border-bottom: 2px solid #333;
+        }
+        .chat-header {
+            background: #222; padding: 5px; font-size: 0.8rem; 
+            text-align: center; border-bottom: 1px solid #333; font-weight: bold;
+        }
+        iframe { width: 100%; height: 100%; border: none; background: #000; flex-grow: 1; }
+
+        /* Remote Styles */
+        .remote-nav {
+            display: flex; position: absolute; top: 0; left: 0; width: 100%; height: 40px;
+            background: #000; border-bottom: 1px solid #333; z-index: 999;
+        }
+        .remote-tab-btn {
+            flex: 1; padding: 10px; background: #111; color: #888;
+            border: none; border-bottom: 2px solid transparent;
+            cursor: pointer; font-weight: bold; text-transform: uppercase;
+        }
+        .remote-tab-btn.active { background: #1a1a1a; color: #ff5500; border-bottom: 2px solid #ff5500; }
+
+        .remote-view {
+            display: none; height: calc(100% - 40px);
+            margin-top: 40px; padding: 5px; box-sizing: border-box;
+        }
+        .remote-view.active { 
+            display: flex; flex-wrap: wrap; justify-content: space-evenly;
+        }
+
+        .control-group { 
+            background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 8px; 
+            padding: 10px; display: flex; flex-direction: column; flex: 1; max-width: 380px;
+            margin: 5px; box-sizing: border-box;
+        }
+        .control-group h3 { margin: 0 0 5px 0; font-size: 0.8rem; color: #888; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #333; padding-bottom: 3px; }
+        .remote-btn { width: 100%; margin-bottom: 5px; padding: 5px; font-size: 0.9rem; cursor: pointer; }
+        .flex-row { display: flex; gap: 5px; margin-bottom: 5px; }
+
+        .meter-bg { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; margin-bottom: 10px; }
+        .meter-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #00ff00, #ffff00, #ff0000); transition: width 0.1s ease; }
+        input[type=range] { width: 100%; accent-color: #ff5500; }
+
+        #go-live-btn { 
+            width: 100%; height: 60px; border-radius: 8px; margin-top: 10px;
+            background-color: #cc0000; color: white; font-size: 1.5rem; font-weight: bold; 
+            border: none; border-top: 2px solid #ff5555; cursor: pointer; text-transform: uppercase; 
+            animation: pulseRed 2s infinite; z-index: 1000;
+        }
+        #go-live-btn.live { background-color: #00cc00; border-top: 2px solid #55ff55; animation: none; }
+        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(204, 0, 0, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(204, 0, 0, 0); } 100% { box-shadow: 0 0 0 0 rgba(204, 0, 0, 0); } }
+        @keyframes spinRecord { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+  <div id="master-drag-region" style="width: 100%; height: 35px; background-color: #000; position: absolute; top: 0; left: 0; z-index: 1000; -webkit-app-region: drag; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #ff5500;">
+      <span style="color: #ff5500; font-size: 0.9rem; font-weight: bold; letter-spacing: 2px;">STREAM SUITE STUDIO</span>
+      <div style="position: absolute; right: 0; top: 0; height: 35px; width: 100px; -webkit-app-region: no-drag; display: flex; z-index: 1001;">
+          <button class="win-btn" id="win-min" style="flex: 1; background: #111; border: none; color: #888; cursor: pointer; font-size: 1rem;">_</button>
+          <button class="win-btn" id="win-max" style="flex: 1; background: #111; border: none; color: #888; cursor: pointer; font-size: 1rem;">□</button>
+          <button class="win-btn" id="win-close" style="flex: 1; background: #111; border: none; color: #888; cursor: pointer; font-size: 1rem;">X</button>
+      </div>
+  </div>
+
+    <div id="zone-canvas">
+        <div id="scene-countdown" class="broadcast-scene">
+            <div id="countdown-bg-container" style="position: absolute; width: 100%; height: 100%; z-index: 1;"></div>
+            
+            <div id="countdown-content" style="position: absolute; width: 100%; height: 100%; z-index: 2; display: flex; flex-direction: column; align-items: center;">
+                <h1 id="countdown-header-text" style="margin: 0; font-size: 5rem; text-shadow: 4px 4px 15px rgba(0,0,0,0.9);">Starting Soon...</h1>
+                <h2 id="countdown-timer" style="margin: 0; font-size: 8rem; font-weight: bold; text-shadow: 4px 4px 15px rgba(0,0,0,0.9);">05:00</h2>
+            </div>
+        </div>
+
+       <div id="scene-host" class="broadcast-scene scene-active">
+            <video id="host-camera" autoplay muted></video>
+            
+           <div id="host-frame" style="position: absolute; pointer-events: none; z-index: 5;"></div>
+            
+            <img id="sponsor-overlay" class="sponsor-hidden pos-top-right" src="" alt="Sponsor Logo">
+            
+            <div id="host-lower-third" style="z-index: 10;">
+                <h2 id="host-name-display">Loading...</h2>
+                <p id="show-name-display">Loading...</p>
+            </div>
+        </div>
+
+       <div id="scene-media" class="broadcast-scene">
+            <div id="media-bg-container" style="position: absolute; width: 100%; height: 100%; z-index: 1; filter: blur(25px) brightness(0.3); transform: scale(1.1);"></div>
+            <video id="media-video-player" style="position: absolute; width: 100%; height: 100%; object-fit: contain; z-index: 2; display: none; background: transparent !important;"></video>
+            <div id="react-visualizer-root" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none;"></div>
+            <div id="media-metadata-container" style="position: absolute; bottom: 40px; left: 40px; z-index: 4; display: flex; flex-direction: column;">
+                <h1 id="media-song-title" style="margin: 0; font-size: 3.5rem; text-shadow: 2px 2px 10px rgba(0,0,0,0.9);">Waiting for Audio...</h1>
+                <h2 id="media-artist-name" style="margin: 5px 0 0 0; font-size: 1.8rem; color: #cccccc; text-shadow: 2px 2px 10px rgba(0,0,0,0.9);">Stream Suite V3</h2>
+            </div>
+        </div>
+        
+        <div id="scene-screenshare" class="broadcast-scene">
+            <video id="screenshare-video" autoplay muted style="width: 100%; height: 100%; object-fit: contain; background: #000;"></video>
+        </div>
+
+        <div id="global-banner-container">
+            <div id="banner-logo-wrapper" style="display: none; height: 100%; padding: 5px 20px; background: rgba(255,255,255,0.1); border-right: 2px solid #ff5500; z-index: 10001; align-items: center; justify-content: center;">
+                <img id="banner-logo-img" src="" style="height: 100%; max-height: 50px; object-fit: contain;">
+            </div>
+            <div class="ticker-wrap">
+                <div id="global-banner-text" class="ticker-text">Welcome to the Live Broadcast!</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="zone-chat-global">
+        <div class="chat-box" style="height: 100%; border-bottom: none; display: flex; flex-direction: column;">
+            <div class="chat-header">RESTREAM.IO GLOBAL CHAT</div>
+            <iframe id="iframe-restream" src="about:blank" style="flex: 1;"></iframe>
+        </div>
+    </div>
+
+    <div id="zone-remote">
+        <div class="remote-nav">
+            <button id="nav-controls" class="remote-tab-btn active">Controls</button>
+        </div>
+        
+        <div id="view-controls" class="remote-view active">
+            <div class="control-group">
+                <h3>Scene Control</h3>
+                <div class="scene-switcher" style="display: flex; flex-direction: column; gap: 5px;">
+                    <button onclick="switchScene('countdown')" id="btn-scene-countdown" class="secondary-btn remote-btn" style="margin:0;">1️⃣ Countdown</button>
+                    <button onclick="switchScene('host')" id="btn-scene-host" class="primary-btn remote-btn" style="margin:0;">2️⃣ Live Host</button>
+                    <button onclick="switchScene('media')" id="btn-scene-media" class="secondary-btn remote-btn" style="margin:0;">3️⃣ Media Player</button>
+                    <button onclick="switchScene('screenshare')" id="btn-scene-screenshare" class="secondary-btn remote-btn" style="margin:0;">4️⃣ Screen Share</button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Live Camera Switcher</h3>
+                <div class="flex-row">
+                    <select id="remote-camera-select" style="flex-grow: 1; padding: 5px; background: #222; color: white; border: 1px solid #444;">
+                        <option value="">Scanning cameras...</option>
+                    </select>
+                    <button id="remote-camera-switch" class="secondary-btn" style="padding: 5px 15px;">Switch</button>
+                </div>
+                <h3>Audio Hub</h3>
+                <div class="flex-row" style="align-items: center;">
+                    <button id="remote-mic-toggle" class="primary-btn remote-btn" style="background-color: #00aa00; flex: 1;">🎙️ Mic: ON</button>
+                    <div class="mic-meter-container" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <span style="font-size: 0.8rem; color: #aaa;">Mic Level:</span>
+                        <canvas id="mic-meter" width="150" height="15" style="background: #111; border: 1px solid #333;"></canvas>
+                    </div>
+                </div>
+                <label style="font-size: 0.8rem; color: #aaa;">Mic Volume (Gain)</label>
+                <input type="range" id="remote-mic-vol" min="0" max="150" value="100" style="margin-bottom: 15px;">
+                <div class="meter-bg"><div id="mic-level-fill" class="meter-fill"></div></div>
+                <label style="font-size: 0.8rem; color: #aaa;">Music Volume</label>
+                <input type="range" id="remote-music-vol" min="0" max="100" value="10">
+                <div class="flex-row" style="margin-top: 10px;">
+                    <button id="media-btn-prev" class="secondary-btn remote-btn">⏮️</button>
+                    <button id="media-btn-play" class="primary-btn remote-btn">⏯️</button>
+                    <button id="media-btn-next" class="secondary-btn remote-btn">⏭️</button>
+                </div>
+                <hr style="border-color: #333; margin: 15px 0;" />
+                <h3 style="margin-bottom: 5px;">3D Visualizer Setup</h3>
+                <div class="flex-row">
+                    <label style="color: #aaa; font-size: 0.9rem; cursor: pointer;">
+                        <input type="checkbox" id="remote-vis-eco" style="margin-right: 5px;"> Eco Mode (30 FPS)
+                    </label>
+                    <label style="color: #aaa; font-size: 0.9rem; cursor: pointer;">
+                        <input type="checkbox" id="remote-vis-disable" style="margin-right: 5px;"> Disable Visualizer
+                    </label>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <h3>Live Text & Metadata</h3>
+                <input type="text" id="remote-song-input" class="text-input" placeholder="Song Title / Show Topic" style="margin-bottom: 5px;">
+                <input type="text" id="remote-artist-input" class="text-input" placeholder="Artist Name / Guest Name" style="margin-bottom: 10px;">
+                <button id="remote-push-metadata" class="secondary-btn remote-btn">Push Text to Canvas</button>
+                <h3 style="margin-top: 15px;">Sliding Banner</h3>
+                <input type="text" id="remote-banner-input" class="text-input" placeholder="Enter scrolling ticker text..." style="margin-bottom: 5px;">
+                <div class="flex-row">
+                    <button id="remote-banner-img-btn" class="secondary-btn" style="flex-grow: 1;">📷 Change Logo</button>
+                    <input type="text" id="remote-banner-img-path" class="text-input" placeholder="No logo..." readonly style="width: 50%;">
+                </div>
+                <button id="remote-banner-toggle" class="secondary-btn remote-btn" style="margin-top: 10px;">Show / Hide Banner</button>
+            </div>
+            <div class="control-group">
+                <h3>Broadcast Controls</h3>
+                <button id="open-config-btn" class="secondary-btn remote-btn" style="background: #222;">⚙️ Open Configuration</button>
+                <button id="go-live-btn">🔴 GO LIVE</button>
+            </div>
+            
+            <div class="control-group sponsor-deck">
+                <h3>Sponsor Logos</h3>
+                <div class="sponsor-buttons">
+                    <div class="sponsor-slot" style="display: flex; gap: 5px; margin-bottom: 5px; width: 100%;">
+                        <input type="file" id="sponsor-file-1" accept="image/*" onchange="loadSponsor(1, event)" style="display:none;">
+                        <button onclick="document.getElementById('sponsor-file-1').click()" class="secondary-btn" style="flex: 1;">📁 Load 1</button>
+                        <button onclick="showSponsor(1)" id="btn-show-1" class="secondary-btn" disabled style="flex: 1;">Show Logo 1</button>
+                    </div>
+                    <div class="sponsor-slot" style="display: flex; gap: 5px; margin-bottom: 5px; width: 100%;">
+                        <input type="file" id="sponsor-file-2" accept="image/*" onchange="loadSponsor(2, event)" style="display:none;">
+                        <button onclick="document.getElementById('sponsor-file-2').click()" class="secondary-btn" style="flex: 1;">📁 Load 2</button>
+                        <button onclick="showSponsor(2)" id="btn-show-2" class="secondary-btn" disabled style="flex: 1;">Show Logo 2</button>
+                    </div>
+                    <div class="sponsor-slot" style="display: flex; gap: 5px; margin-bottom: 5px; width: 100%;">
+                        <input type="file" id="sponsor-file-3" accept="image/*" onchange="loadSponsor(3, event)" style="display:none;">
+                        <button onclick="document.getElementById('sponsor-file-3').click()" class="secondary-btn" style="flex: 1;">📁 Load 3</button>
+                        <button onclick="showSponsor(3)" id="btn-show-3" class="secondary-btn" disabled style="flex: 1;">Show Logo 3</button>
+                    </div>
+                    <button onclick="hideSponsor()" class="primary-btn btn-danger" style="background-color: #ff3333; margin-top: 5px; flex-basis: 100%;">HIDE LOGO</button>
+                </div>
+                
+                <h3 style="margin-top: 10px;">Logo Placement</h3>
+                <div class="position-buttons flex-row">
+                    <button onclick="moveSponsor('pos-top-left')" class="secondary-btn">Top Left</button>
+                    <button onclick="moveSponsor('pos-top-right')" class="secondary-btn">Top Right</button>
+                    <button onclick="moveSponsor('pos-bottom-left')" class="secondary-btn">Bottom Left</button>
+                    <button onclick="moveSponsor('pos-bottom-right')" class="secondary-btn">Bottom Right</button>
+                </div>
+            </div>
+
+
+
+            <div style="height: 20px; display: inline-block;"></div>
+        </div>
+    </div>
+
+    <div id="zone-chat-embers">
+        <div class="chat-box" style="height: 100%; border-bottom: none; display: flex; flex-direction: column;">
+            <div class="chat-header" style="background: #222; padding: 5px; font-size: 0.8rem; text-align: center; border-bottom: 1px solid #333; font-weight: bold; text-transform: uppercase;">EMBERS OF LIGHT CHAT</div>
+            <iframe id="iframe-embers" src="about:blank" style="flex: 1; border: none; background: #000; width: 100%;"></iframe>
+        </div>
+    </div>
+
+    <script src="studio.js"></script>
+    <script src="visualizer.bundle.js"></script>
+</body>
+</html>
