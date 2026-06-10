@@ -1,0 +1,36 @@
+{
+  "downloaded": {
+    "https://c-cf.cdn.smule.com/smule-gg-uw1-r-5/sing_google/performance/rendered/bb/4e/441ad7ac-2c7d-426f-8c12-e494f6a6e936.m4a": {
+      "title": "Something About The Way You Look Tonight",
+      "artist": "MichaelJ8489",
+      "filename": "04_Something About The Way You Look Tonight_MichaelJ8489.mp3",
+      "downloadedAt": 1780039805079
+    },
+    "https://c-cf.cdn.smule.com/smule-gg-uw1-r-5/sing/performance/renvideo/e7/bf/ecc58c9f-538d-4def-9d06-3da2d1ca9b5e.mp4": {
+      "title": "Double Trouble",
+      "artist": "Amanda",
+      "filename": "02_Double Trouble_Amanda.mp3",
+      "downloadedAt": 1780039790292
+    },
+    "https://c-cf.cdn.smule.com/smule-gg-uw1-r-5/sing_google/performance/rendered/72/72/73f86087-1856-4543-96ee-9a5a550e5286.m4a": {
+      "title": "When You're GOod To Mama",
+      "artist": "MichaelJ8489",
+      "filename": "03_When You're GOod To Mama_MichaelJ8489.mp3",
+      "downloadedAt": 1780039798154
+    }
+  },
+  "played": {
+    "00_bumper_rise_radio.mp4": {
+      "title": "bumper",
+      "artist": "rise_radio.mp4",
+      "filename": "00_bumper_rise_radio.mp4",
+      "playedAt": 1780040570761
+    },
+    "01_theme_show_opener.mp3": {
+      "title": "theme",
+      "artist": "show_opener",
+      "filename": "01_theme_show_opener.mp3",
+      "playedAt": 1780040633408
+    }
+  }
+}

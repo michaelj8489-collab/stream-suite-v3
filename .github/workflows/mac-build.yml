@@ -1,0 +1,36 @@
+name: Build macOS Release
+
+on:
+  workflow_dispatch: # This adds a "Run workflow" button in GitHub so you can trigger it manually
+
+jobs:
+  build-mac:
+    runs-on: macos-latest # Tells GitHub to spin up a Mac computer
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build React Visualizer
+        run: npm run build:visualizer
+
+      - name: Build Electron App for Mac
+        run: npm run build -- --mac
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Mac Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Stream-Suite-Mac-Release
+          path: |
+            dist/*.dmg
+            dist/*.zip

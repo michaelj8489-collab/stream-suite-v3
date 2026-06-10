@@ -1,1 +1,6 @@
 ﻿node_modules/
+# Build outputs and heavy files
+dist/
+*.mp4
+*.log
+*.exe

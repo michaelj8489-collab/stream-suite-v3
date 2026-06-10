@@ -16,7 +16,11 @@
     ],
     "win": {
       "icon": "stream-suite-logo.png"
-    }
+    },
+    "mac": {
+  "target": ["zip", "dmg"],
+  "category": "public.app-category.video"
+}
   },
   "keywords": [],
   "author": "",
@@ -36,3 +40,4 @@
     "fluent-ffmpeg": "^2.1.3"
   }
 }
+

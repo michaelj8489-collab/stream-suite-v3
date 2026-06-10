@@ -1,0 +1,59 @@
+Restream:
+
+Stream Key:
+re_10632493_551225f1ffe38aa5e970
+re_10632493_551225f1ffe38aa5e970
+
+RTMP URL:
+rtmp://live.restream.io/live
+
+Chat embed link:
+https://chat.restream.io/embed?token=8bf03601-7d28-46d2-921d-be94b96de0c8
+
+
+Zeno:
+
+Rise:
+Server Address:
+link.zeno.fm
+
+Mount Point:
+gxcyt83qgy8uv/source
+
+Mount Password:
+fDhdg128
+
+
+Rise Frequencies:
+Server Address:
+link.zeno.fm
+
+Port: 80
+
+Mount Point:
+kx2rnbf6bgitv
+
+Username: source
+
+Mount Password:
+CsjUuuGa
+
+
+Rise Awakenings:
+Server Address:
+link.zeno.fm
+
+Port:
+80
+
+Mount point:
+hvh0vw6jdowtv
+
+Username:
+source
+
+Mount password:
+Ka9srW79
+
+
+
