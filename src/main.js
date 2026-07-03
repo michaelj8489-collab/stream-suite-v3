@@ -5,8 +5,9 @@ const https = require('https');
 const { spawn } = require('child_process');
 const { PassThrough } = require('stream');
 
-// Change line 8 to look exactly like this:
-app.disableHardwareAcceleration();
+// Hardware acceleration RE-ENABLED but we will fix the GPU selection in the WebGL context
+app.commandLine.appendSwitch('disable-gpu-sandbox'); // Fixes exit_code=34 crash during FFmpeg gdigrab
+app.commandLine.appendSwitch('use-angle', 'opengl'); // Bypasses AMD D3D11 driver crashes (TDR) but supports WebGL 2 (ES3)
 app.commandLine.appendSwitch('disable-direct-composition');
 app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 
@@ -27,6 +28,7 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 // Global pointer to hold the active live stream process
 let liveBroadcastProcess = null;
 let internalAudioStream = null;
+let isIntentionallyStopping = false;
 
 ipcMain.on('audio-stream-chunk', (event, chunkBuffer) => {
     if (internalAudioStream) {
@@ -122,8 +124,13 @@ if (!gotTheLock) {
         
         if (mainWindow) mainWindow.hide();
 
+        if (studioWindow) {
+            studioWindow.close();
+            studioWindow = null;
+        }
+
         studioWindow = new BrowserWindow({
-            width: 1360,
+            width: 1680,
             height: 940,
             resizable: true,
             frame: false,
@@ -133,8 +140,6 @@ if (!gotTheLock) {
         });
         // FIXED: Bulletproof path routing
         studioWindow.loadFile(path.join(__dirname, 'studio.html')).catch(err => console.error("Studio Load Error:", err));
-
-        studioWindow.webContents.openDevTools({ mode: 'detach' });
     });
 
    
@@ -193,9 +198,9 @@ if (!gotTheLock) {
         if (studioWindow) studioWindow.webContents.send('media-command', command);
     });
 
-    ipcMain.on('toggle-banner', (event, bannerData) => {
-        if (studioWindow) studioWindow.webContents.send('toggle-banner', bannerData);
-    });
+    // ipcMain.on('toggle-banner', (event, bannerData) => {
+        // if (studioWindow) studioWindow.webContents.send('toggle-banner', bannerData);
+    // });
 
     // --- Native File Explorers ---
     ipcMain.handle('dialog:openFile', async () => {
@@ -219,6 +224,10 @@ if (!gotTheLock) {
         if (mainWindow) {
             mainWindow.show();
             mainWindow.focus();
+        }
+        if (studioWindow) {
+            studioWindow.close();
+            studioWindow = null;
         }
     });
 
@@ -282,6 +291,7 @@ if (!gotTheLock) {
     ipcMain.on('start-broadcast', async (event) => {
         if (liveBroadcastProcess) return; // Already streaming!
 
+        isIntentionallyStopping = false;
         console.log("🔴 Spawning Blueprint Broadcast Engine...");
 
         const timestamp = Date.now();
@@ -326,7 +336,7 @@ if (!gotTheLock) {
             icecastDestination = `icecast://source:${masterStreamConfig.icecastPass}@${masterStreamConfig.icecastUrl}:${masterStreamConfig.icecastPort || 80}${masterStreamConfig.icecastMount}`;
         }
 
-        let videoSplits = `[0:v]setpts=PTS-STARTPTS,crop=1280:640:0:40,format=yuv420p,split=${videoOutputCount}[v_rtmp1]`;
+        let videoSplits = `[0:v]setpts=PTS-STARTPTS,crop=1280:640:0:35,pad=1280:720:0:40:black,format=yuv420p,split=${videoOutputCount}[v_rtmp1]`;
         if (hasRtmp2) videoSplits += `[v_rtmp2]`;
         videoSplits += `[v_mp4]`;
 
@@ -354,20 +364,22 @@ if (!gotTheLock) {
 
             .complexFilter(complexFilterStr)
             
-            // Output: RTMP 1 (Always)
+     // Output: RTMP 1 (Always)
             .output(rtmpDestination1)
             .outputFormat('flv')
             .outputOptions([
-                '-map [v_rtmp1]',
-                '-map 1:a',
-                '-vcodec libx264',
-                '-acodec aac',
-                '-preset ultrafast', 
-                '-tune zerolatency', 
-                `-b:v ${videoBitrate}`, 
-                `-maxrate ${videoBitrate}`,
-                `-bufsize ${bufsize}`,
-                '-b:a 128k'
+                '-map', '[v_rtmp1]',
+                '-map', '1:a',
+                '-af', 'asetpts=PTS-STARTPTS', // <-- CRITICAL FIX: Syncs live audio clock
+                '-c:v', 'libx264',
+                '-c:a', 'aac',
+                '-preset', 'ultrafast', 
+                '-tune', 'zerolatency', 
+                '-threads', '4',
+                '-b:v', videoBitrate, 
+                '-maxrate', videoBitrate,
+                '-bufsize', bufsize,
+                '-b:a', '128k'
             ]);
 
         // Output: RTMP 2 (Optional)
@@ -377,16 +389,18 @@ if (!gotTheLock) {
                 .output(rtmpDestination2)
                 .outputFormat('flv')
                 .outputOptions([
-                    '-map [v_rtmp2]',
-                    '-map 1:a',
-                    '-vcodec libx264',
-                    '-acodec aac',
-                    '-preset ultrafast', 
-                    '-tune zerolatency', 
-                    `-b:v ${videoBitrate}`, 
-                    `-maxrate ${videoBitrate}`,
-                    `-bufsize ${bufsize}`,
-                    '-b:a 128k'
+                    '-map', '[v_rtmp2]',
+                    '-map', '1:a',
+                    '-af', 'asetpts=PTS-STARTPTS', // <-- CRITICAL FIX
+                    '-c:v', 'libx264',
+                    '-c:a', 'aac',
+                    '-preset', 'superfast', 
+                    '-tune', 'zerolatency', 
+                    '-threads', '8',
+                    '-b:v', videoBitrate, 
+                    '-maxrate', videoBitrate,
+                    '-bufsize', bufsize,
+                    '-b:a', '128k'
                 ]);
         }
 
@@ -395,18 +409,19 @@ if (!gotTheLock) {
             .output(videoArchivePath)
             .outputFormat('mp4')
             .outputOptions([
-                '-map [v_mp4]',
-                '-map 1:a',
-                '-af', 'asetpts=PTS-STARTPTS', // <-- SYNC THE AUDIO CLOCK
-                '-vcodec libx264',
-                '-acodec aac',
-                '-preset ultrafast', 
-                '-tune zerolatency', 
-                `-b:v ${videoBitrate}`, 
-                `-maxrate ${videoBitrate}`,
-                `-bufsize ${bufsize}`,
-                '-b:a 128k',
-                '-movflags +frag_keyframe+empty_moov+default_base_moof'
+                '-map', '[v_mp4]',
+                '-map', '1:a',
+                '-af', 'asetpts=PTS-STARTPTS', 
+                '-c:v', 'libx264',
+                '-c:a', 'aac',
+                '-preset', 'ultrafast', 
+                '-tune', 'zerolatency', 
+                '-threads', '4',
+                '-b:v', videoBitrate, 
+                '-maxrate', videoBitrate,
+                '-bufsize', bufsize,
+                '-b:a', '128k',
+                '-movflags', '+frag_keyframe+empty_moov+default_base_moof'
             ]);
             
         // Output: Icecast MP3 (Optional)
@@ -415,39 +430,86 @@ if (!gotTheLock) {
                 .output(icecastDestination)
                 .outputFormat('mp3')
                 .outputOptions([
-                    '-map 1:a',
-                    '-acodec libmp3lame',
-                    '-b:a 128k',
-                    '-content_type audio/mpeg'
+                    '-map', '1:a',
+                    '-af', 'asetpts=PTS-STARTPTS', // <-- CRITICAL FIX
+                    '-c:a', 'libmp3lame',
+                    '-b:a', '128k',
+                    '-content_type', 'audio/mpeg'
                 ]);
         }
+
+        let recentStderr = [];
 
         liveBroadcastProcess = liveBroadcastProcess
             // Output: Audio MP3 Archive (Always)
             .output(audioArchivePath)
             .outputFormat('mp3')
             .outputOptions([
-                '-map 1:a',
-                '-acodec libmp3lame',
-                '-b:a 128k'
+                '-map', '1:a',
+                '-af', 'asetpts=PTS-STARTPTS',
+                '-c:a', 'libmp3lame',
+                '-b:a', '128k'
             ])
             .on('stderr', (stderrLine) => {
-                console.log('🔎 FFMPEG INTERNAL:', stderrLine);
+                // Keep the last 10 lines of stderr in case of a crash
+                recentStderr.push(stderrLine);
+                if (recentStderr.length > 10) recentStderr.shift();
             })
             .on('start', (commandLine) => {
                 console.log('🚀 FFmpeg tunnels successfully opened!');
             })
             .on('error', (err) => {
                 const msg = err.message ? err.message.toLowerCase() : '';
-                if (msg.includes('sigint') || msg.includes('sigkill') || msg.includes('killed') || msg.includes('exit code 255')) {
+                if (isIntentionallyStopping || msg.includes('sigint') || msg.includes('sigkill') || msg.includes('killed')) {
                     console.log('⏹ Broadcast engine shut down gracefully (fallback).');
                 } else {
                     console.error('❌ FFmpeg Broadcast Engine error:', err.message);
+                    
+                    // It's a real crash! Let's figure out what died.
+                    const fullLog = recentStderr.join('\n').toLowerCase();
+                    let crashType = "Unknown Pipeline Issue";
+                    if (fullLog.includes('audio') || msg.includes('audio') || fullLog.includes('icecast') || fullLog.includes('lame')) {
+                        crashType = "Audio Pipeline Crash";
+                    } 
+                    if (fullLog.includes('video') || msg.includes('video') || fullLog.includes('rtmp') || fullLog.includes('x264')) {
+                        // If it's both, we just call it a Video/RTMP crash or generic
+                        crashType = crashType === "Audio Pipeline Crash" ? "Audio/Video Pipeline Crash" : "Video Pipeline Crash";
+                    }
+
+                    const crashDetails = recentStderr.slice(-5).join('\n'); // Give them the last 5 lines for context
+                    
+                    // Stop streaming across the board
+                    if (internalAudioStream) {
+                        internalAudioStream.end();
+                        internalAudioStream = null;
+                    }
+
+                    // Tell the studio window it crashed so it can reset the button and alert the user
+                    if (studioWindow) {
+                        studioWindow.webContents.send('broadcast-crashed', {
+                            type: crashType,
+                            message: err.message,
+                            details: crashDetails
+                        });
+                        studioWindow.webContents.send('stop-internal-recording');
+                    }
                 }
                 liveBroadcastProcess = null;
             })
             .on('end', () => {
-                console.log('⏹ Broadcast engine shut down gracefully.');
+                if (!isIntentionallyStopping) {
+                    console.error('❌ FFmpeg Broadcast Engine ended unexpectedly (Connection Drop).');
+                    if (studioWindow) {
+                        studioWindow.webContents.send('broadcast-crashed', {
+                            type: 'Connection Drop',
+                            message: 'The stream ended unexpectedly. Usually this means the destination server disconnected.',
+                            details: 'No further details available.'
+                        });
+                        studioWindow.webContents.send('stop-internal-recording');
+                    }
+                } else {
+                    console.log('⏹ Broadcast engine shut down gracefully.');
+                }
                 liveBroadcastProcess = null;
             });
 
@@ -457,6 +519,7 @@ if (!gotTheLock) {
     ipcMain.on('stop-broadcast', (event) => {
         if (!liveBroadcastProcess) return;
 
+        isIntentionallyStopping = true;
         console.log("⏹ Stopping broadcast and saving local files to your Desktop...");
         
         let procRef = liveBroadcastProcess;
@@ -481,7 +544,6 @@ if (!gotTheLock) {
             internalAudioStream.end(); 
             internalAudioStream = null; 
         }
-
         if (studioWindow) studioWindow.webContents.send('stop-internal-recording');
     });
 

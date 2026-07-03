@@ -1334,7 +1334,7 @@ var ReactVisualizer = (() => {
           return dispatcher;
         }
         "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-        var React6 = require_react(), Internals = {
+        var React5 = require_react(), Internals = {
           d: {
             f: noop,
             r: function() {
@@ -1352,7 +1352,7 @@ var ReactVisualizer = (() => {
           },
           p: 0,
           findDOMNode: null
-        }, REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), ReactSharedInternals = React6.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
+        }, REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), ReactSharedInternals = React5.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE;
         "function" === typeof Map && null != Map.prototype && "function" === typeof Map.prototype.forEach && "function" === typeof Set && null != Set.prototype && "function" === typeof Set.prototype.clear && "function" === typeof Set.prototype.forEach || console.error(
           "React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://reactjs.org/link/react-polyfills"
         );
@@ -2887,7 +2887,7 @@ var ReactVisualizer = (() => {
           "number" === type && getActiveElement(node.ownerDocument) === node || node.defaultValue === "" + value || (node.defaultValue = "" + value);
         }
         function validateOptionProps(element, props) {
-          null == props.value && ("object" === typeof props.children && null !== props.children ? React6.Children.forEach(props.children, function(child) {
+          null == props.value && ("object" === typeof props.children && null !== props.children ? React5.Children.forEach(props.children, function(child) {
             null == child || "string" === typeof child || "number" === typeof child || "bigint" === typeof child || didWarnInvalidChild || (didWarnInvalidChild = true, console.error(
               "Cannot infer the option value of complex children. Pass a `value` prop or use a plain string as children to <option>."
             ));
@@ -18519,14 +18519,14 @@ var ReactVisualizer = (() => {
           ));
         }
         "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-        var Scheduler = require_scheduler(), React6 = require_react(), ReactDOM = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.element"), REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy");
+        var Scheduler = require_scheduler(), React5 = require_react(), ReactDOM = require_react_dom(), assign = Object.assign, REACT_LEGACY_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.element"), REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy");
         /* @__PURE__ */ Symbol.for("react.scope");
         var REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity");
         /* @__PURE__ */ Symbol.for("react.legacy_hidden");
         /* @__PURE__ */ Symbol.for("react.tracing_marker");
         var REACT_MEMO_CACHE_SENTINEL = /* @__PURE__ */ Symbol.for("react.memo_cache_sentinel");
         /* @__PURE__ */ Symbol.for("react.view_transition");
-        var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React6.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
+        var MAYBE_ITERATOR_SYMBOL = Symbol.iterator, REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference"), isArrayImpl = Array.isArray, ReactSharedInternals = React5.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, ReactDOMSharedInternals = ReactDOM.__DOM_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, NotPending = Object.freeze({
           pending: false,
           data: null,
           method: null,
@@ -21314,7 +21314,7 @@ var ReactVisualizer = (() => {
           }
         };
         (function() {
-          var isomorphicReactPackageVersion = React6.version;
+          var isomorphicReactPackageVersion = React5.version;
           if ("19.2.7" !== isomorphicReactPackageVersion)
             throw Error(
               'Incompatible React versions: The "react" and "react-dom" packages must have the exact same version. Instead got:\n  - react:      ' + (isomorphicReactPackageVersion + "\n  - react-dom:  19.2.7\nLearn more: https://react.dev/warnings/version-mismatch")
@@ -21463,7 +21463,7 @@ var ReactVisualizer = (() => {
           return x2 === y && (0 !== x2 || 1 / x2 === 1 / y) || x2 !== x2 && y !== y;
         }
         function useSyncExternalStore$2(subscribe, getSnapshot) {
-          didWarnOld18Alpha || void 0 === React6.startTransition || (didWarnOld18Alpha = true, console.error(
+          didWarnOld18Alpha || void 0 === React5.startTransition || (didWarnOld18Alpha = true, console.error(
             "You are using an outdated, pre-release alpha of React 18 that does not support useSyncExternalStore. The use-sync-external-store shim will not work correctly. Upgrade to a newer pre-release."
           ));
           var value = getSnapshot();
@@ -21485,7 +21485,7 @@ var ReactVisualizer = (() => {
             },
             [subscribe, value, getSnapshot]
           );
-          useEffect6(
+          useEffect5(
             function() {
               checkIfSnapshotChanged(inst) && forceUpdate({ inst });
               return subscribe(function() {
@@ -21511,8 +21511,8 @@ var ReactVisualizer = (() => {
           return getSnapshot();
         }
         "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-        var React6 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is2, useState5 = React6.useState, useEffect6 = React6.useEffect, useLayoutEffect3 = React6.useLayoutEffect, useDebugValue = React6.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
-        exports.useSyncExternalStore = void 0 !== React6.useSyncExternalStore ? React6.useSyncExternalStore : shim;
+        var React5 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is2, useState5 = React5.useState, useEffect5 = React5.useEffect, useLayoutEffect3 = React5.useLayoutEffect, useDebugValue = React5.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+        exports.useSyncExternalStore = void 0 !== React5.useSyncExternalStore ? React5.useSyncExternalStore : shim;
         "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
       })();
     }
@@ -21539,14 +21539,14 @@ var ReactVisualizer = (() => {
           return x2 === y && (0 !== x2 || 1 / x2 === 1 / y) || x2 !== x2 && y !== y;
         }
         "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-        var React6 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is2, useSyncExternalStore = shim.useSyncExternalStore, useRef5 = React6.useRef, useEffect6 = React6.useEffect, useMemo6 = React6.useMemo, useDebugValue = React6.useDebugValue;
+        var React5 = require_react(), shim = require_shim(), objectIs = "function" === typeof Object.is ? Object.is : is2, useSyncExternalStore = shim.useSyncExternalStore, useRef5 = React5.useRef, useEffect5 = React5.useEffect, useMemo5 = React5.useMemo, useDebugValue = React5.useDebugValue;
         exports.useSyncExternalStoreWithSelector = function(subscribe, getSnapshot, getServerSnapshot, selector, isEqual) {
           var instRef = useRef5(null);
           if (null === instRef.current) {
             var inst = { hasValue: false, value: null };
             instRef.current = inst;
           } else inst = instRef.current;
-          instRef = useMemo6(
+          instRef = useMemo5(
             function() {
               function memoizedSelector(nextSnapshot) {
                 if (!hasMemo) {
@@ -21582,7 +21582,7 @@ var ReactVisualizer = (() => {
             [getSnapshot, getServerSnapshot, selector, isEqual]
           );
           var value = useSyncExternalStore(subscribe, instRef[0], instRef[1]);
-          useEffect6(
+          useEffect5(
             function() {
               inst.hasValue = true;
               inst.value = value;
@@ -21823,18 +21823,18 @@ var ReactVisualizer = (() => {
         function isValidElement(object) {
           return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
         }
-        var React6 = require_react(), REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference"), ReactSharedInternals = React6.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+        var React5 = require_react(), REACT_ELEMENT_TYPE = /* @__PURE__ */ Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = /* @__PURE__ */ Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = /* @__PURE__ */ Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = /* @__PURE__ */ Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = /* @__PURE__ */ Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = /* @__PURE__ */ Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = /* @__PURE__ */ Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = /* @__PURE__ */ Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = /* @__PURE__ */ Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = /* @__PURE__ */ Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = /* @__PURE__ */ Symbol.for("react.memo"), REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = /* @__PURE__ */ Symbol.for("react.activity"), REACT_CLIENT_REFERENCE = /* @__PURE__ */ Symbol.for("react.client.reference"), ReactSharedInternals = React5.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
           return null;
         };
-        React6 = {
+        React5 = {
           react_stack_bottom_frame: function(callStackForError) {
             return callStackForError();
           }
         };
         var specialPropKeyWarningShown;
         var didWarnAboutElementRef = {};
-        var unknownOwnerDebugStack = React6.react_stack_bottom_frame.bind(
-          React6,
+        var unknownOwnerDebugStack = React5.react_stack_bottom_frame.bind(
+          React5,
           UnknownOwner
         )();
         var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
@@ -75330,1147 +75330,193 @@ No matching component was found for:
     });
   }
 
-  // node_modules/@babel/runtime/helpers/esm/extends.js
-  function _extends() {
-    return _extends = Object.assign ? Object.assign.bind() : function(n) {
-      for (var e2 = 1; e2 < arguments.length; e2++) {
-        var t2 = arguments[e2];
-        for (var r2 in t2) ({}).hasOwnProperty.call(t2, r2) && (n[r2] = t2[r2]);
-      }
-      return n;
-    }, _extends.apply(null, arguments);
-  }
-
-  // node_modules/three-stdlib/controls/EventDispatcher.js
-  var __defProp2 = Object.defineProperty;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField = (obj, key, value) => {
-    __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
-  var EventDispatcher2 = class {
-    constructor() {
-      __publicField(this, "_listeners");
-    }
-    /**
-     * Adds a listener to an event type.
-     * @param type The type of event to listen to.
-     * @param listener The function that gets called when the event is fired.
-     */
-    addEventListener(type, listener) {
-      if (this._listeners === void 0)
-        this._listeners = {};
-      const listeners = this._listeners;
-      if (listeners[type] === void 0) {
-        listeners[type] = [];
-      }
-      if (listeners[type].indexOf(listener) === -1) {
-        listeners[type].push(listener);
-      }
-    }
-    /**
-        * Checks if listener is added to an event type.
-        * @param type The type of event to listen to.
-        * @param listener The function that gets called when the event is fired.
-        */
-    hasEventListener(type, listener) {
-      if (this._listeners === void 0)
-        return false;
-      const listeners = this._listeners;
-      return listeners[type] !== void 0 && listeners[type].indexOf(listener) !== -1;
-    }
-    /**
-        * Removes a listener from an event type.
-        * @param type The type of the listener that gets removed.
-        * @param listener The listener function that gets removed.
-        */
-    removeEventListener(type, listener) {
-      if (this._listeners === void 0)
-        return;
-      const listeners = this._listeners;
-      const listenerArray = listeners[type];
-      if (listenerArray !== void 0) {
-        const index = listenerArray.indexOf(listener);
-        if (index !== -1) {
-          listenerArray.splice(index, 1);
-        }
-      }
-    }
-    /**
-        * Fire an event type.
-        * @param event The event that gets fired.
-        */
-    dispatchEvent(event) {
-      if (this._listeners === void 0)
-        return;
-      const listeners = this._listeners;
-      const listenerArray = listeners[event.type];
-      if (listenerArray !== void 0) {
-        event.target = this;
-        const array = listenerArray.slice(0);
-        for (let i3 = 0, l2 = array.length; i3 < l2; i3++) {
-          array[i3].call(this, event);
-        }
-        event.target = null;
-      }
-    }
-  };
-
-  // node_modules/three-stdlib/controls/OrbitControls.js
-  var __defProp3 = Object.defineProperty;
-  var __defNormalProp2 = (obj, key, value) => key in obj ? __defProp3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __publicField2 = (obj, key, value) => {
-    __defNormalProp2(obj, typeof key !== "symbol" ? key + "" : key, value);
-    return value;
-  };
-  var _ray2 = /* @__PURE__ */ new Ray();
-  var _plane = /* @__PURE__ */ new Plane();
-  var TILT_LIMIT = Math.cos(70 * (Math.PI / 180));
-  var moduloWrapAround = (offset, capacity) => (offset % capacity + capacity) % capacity;
-  var OrbitControls = class extends EventDispatcher2 {
-    constructor(object, domElement) {
-      super();
-      __publicField2(this, "object");
-      __publicField2(this, "domElement");
-      __publicField2(this, "enabled", true);
-      __publicField2(this, "target", new Vector3());
-      __publicField2(this, "minDistance", 0);
-      __publicField2(this, "maxDistance", Infinity);
-      __publicField2(this, "minZoom", 0);
-      __publicField2(this, "maxZoom", Infinity);
-      __publicField2(this, "minPolarAngle", 0);
-      __publicField2(this, "maxPolarAngle", Math.PI);
-      __publicField2(this, "minAzimuthAngle", -Infinity);
-      __publicField2(this, "maxAzimuthAngle", Infinity);
-      __publicField2(this, "enableDamping", false);
-      __publicField2(this, "dampingFactor", 0.05);
-      __publicField2(this, "enableZoom", true);
-      __publicField2(this, "zoomSpeed", 1);
-      __publicField2(this, "enableRotate", true);
-      __publicField2(this, "rotateSpeed", 1);
-      __publicField2(this, "enablePan", true);
-      __publicField2(this, "panSpeed", 1);
-      __publicField2(this, "screenSpacePanning", true);
-      __publicField2(this, "keyPanSpeed", 7);
-      __publicField2(this, "zoomToCursor", false);
-      __publicField2(this, "autoRotate", false);
-      __publicField2(this, "autoRotateSpeed", 2);
-      __publicField2(this, "reverseOrbit", false);
-      __publicField2(this, "reverseHorizontalOrbit", false);
-      __publicField2(this, "reverseVerticalOrbit", false);
-      __publicField2(this, "keys", { LEFT: "ArrowLeft", UP: "ArrowUp", RIGHT: "ArrowRight", BOTTOM: "ArrowDown" });
-      __publicField2(this, "mouseButtons", {
-        LEFT: MOUSE.ROTATE,
-        MIDDLE: MOUSE.DOLLY,
-        RIGHT: MOUSE.PAN
-      });
-      __publicField2(this, "touches", { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN });
-      __publicField2(this, "target0");
-      __publicField2(this, "position0");
-      __publicField2(this, "zoom0");
-      __publicField2(this, "_domElementKeyEvents", null);
-      __publicField2(this, "getPolarAngle");
-      __publicField2(this, "getAzimuthalAngle");
-      __publicField2(this, "setPolarAngle");
-      __publicField2(this, "setAzimuthalAngle");
-      __publicField2(this, "getDistance");
-      __publicField2(this, "getZoomScale");
-      __publicField2(this, "listenToKeyEvents");
-      __publicField2(this, "stopListenToKeyEvents");
-      __publicField2(this, "saveState");
-      __publicField2(this, "reset");
-      __publicField2(this, "update");
-      __publicField2(this, "connect");
-      __publicField2(this, "dispose");
-      __publicField2(this, "dollyIn");
-      __publicField2(this, "dollyOut");
-      __publicField2(this, "getScale");
-      __publicField2(this, "setScale");
-      this.object = object;
-      this.domElement = domElement;
-      this.target0 = this.target.clone();
-      this.position0 = this.object.position.clone();
-      this.zoom0 = this.object.zoom;
-      this.getPolarAngle = () => spherical.phi;
-      this.getAzimuthalAngle = () => spherical.theta;
-      this.setPolarAngle = (value) => {
-        let phi = moduloWrapAround(value, 2 * Math.PI);
-        let currentPhi = spherical.phi;
-        if (currentPhi < 0)
-          currentPhi += 2 * Math.PI;
-        if (phi < 0)
-          phi += 2 * Math.PI;
-        let phiDist = Math.abs(phi - currentPhi);
-        if (2 * Math.PI - phiDist < phiDist) {
-          if (phi < currentPhi) {
-            phi += 2 * Math.PI;
-          } else {
-            currentPhi += 2 * Math.PI;
-          }
-        }
-        sphericalDelta.phi = phi - currentPhi;
-        scope.update();
-      };
-      this.setAzimuthalAngle = (value) => {
-        let theta = moduloWrapAround(value, 2 * Math.PI);
-        let currentTheta = spherical.theta;
-        if (currentTheta < 0)
-          currentTheta += 2 * Math.PI;
-        if (theta < 0)
-          theta += 2 * Math.PI;
-        let thetaDist = Math.abs(theta - currentTheta);
-        if (2 * Math.PI - thetaDist < thetaDist) {
-          if (theta < currentTheta) {
-            theta += 2 * Math.PI;
-          } else {
-            currentTheta += 2 * Math.PI;
-          }
-        }
-        sphericalDelta.theta = theta - currentTheta;
-        scope.update();
-      };
-      this.getDistance = () => scope.object.position.distanceTo(scope.target);
-      this.listenToKeyEvents = (domElement2) => {
-        domElement2.addEventListener("keydown", onKeyDown);
-        this._domElementKeyEvents = domElement2;
-      };
-      this.stopListenToKeyEvents = () => {
-        this._domElementKeyEvents.removeEventListener("keydown", onKeyDown);
-        this._domElementKeyEvents = null;
-      };
-      this.saveState = () => {
-        scope.target0.copy(scope.target);
-        scope.position0.copy(scope.object.position);
-        scope.zoom0 = scope.object.zoom;
-      };
-      this.reset = () => {
-        scope.target.copy(scope.target0);
-        scope.object.position.copy(scope.position0);
-        scope.object.zoom = scope.zoom0;
-        scope.object.updateProjectionMatrix();
-        scope.dispatchEvent(changeEvent);
-        scope.update();
-        state2 = STATE.NONE;
-      };
-      this.update = (() => {
-        const offset = new Vector3();
-        const up = new Vector3(0, 1, 0);
-        const quat = new Quaternion().setFromUnitVectors(object.up, up);
-        const quatInverse = quat.clone().invert();
-        const lastPosition = new Vector3();
-        const lastQuaternion = new Quaternion();
-        const twoPI = 2 * Math.PI;
-        return function update2() {
-          const position = scope.object.position;
-          quat.setFromUnitVectors(object.up, up);
-          quatInverse.copy(quat).invert();
-          offset.copy(position).sub(scope.target);
-          offset.applyQuaternion(quat);
-          spherical.setFromVector3(offset);
-          if (scope.autoRotate && state2 === STATE.NONE) {
-            rotateLeft(getAutoRotationAngle());
-          }
-          if (scope.enableDamping) {
-            spherical.theta += sphericalDelta.theta * scope.dampingFactor;
-            spherical.phi += sphericalDelta.phi * scope.dampingFactor;
-          } else {
-            spherical.theta += sphericalDelta.theta;
-            spherical.phi += sphericalDelta.phi;
-          }
-          let min = scope.minAzimuthAngle;
-          let max = scope.maxAzimuthAngle;
-          if (isFinite(min) && isFinite(max)) {
-            if (min < -Math.PI)
-              min += twoPI;
-            else if (min > Math.PI)
-              min -= twoPI;
-            if (max < -Math.PI)
-              max += twoPI;
-            else if (max > Math.PI)
-              max -= twoPI;
-            if (min <= max) {
-              spherical.theta = Math.max(min, Math.min(max, spherical.theta));
-            } else {
-              spherical.theta = spherical.theta > (min + max) / 2 ? Math.max(min, spherical.theta) : Math.min(max, spherical.theta);
-            }
-          }
-          spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
-          spherical.makeSafe();
-          if (scope.enableDamping === true) {
-            scope.target.addScaledVector(panOffset, scope.dampingFactor);
-          } else {
-            scope.target.add(panOffset);
-          }
-          if (scope.zoomToCursor && performCursorZoom || scope.object.isOrthographicCamera) {
-            spherical.radius = clampDistance(spherical.radius);
-          } else {
-            spherical.radius = clampDistance(spherical.radius * scale);
-          }
-          offset.setFromSpherical(spherical);
-          offset.applyQuaternion(quatInverse);
-          position.copy(scope.target).add(offset);
-          if (!scope.object.matrixAutoUpdate)
-            scope.object.updateMatrix();
-          scope.object.lookAt(scope.target);
-          if (scope.enableDamping === true) {
-            sphericalDelta.theta *= 1 - scope.dampingFactor;
-            sphericalDelta.phi *= 1 - scope.dampingFactor;
-            panOffset.multiplyScalar(1 - scope.dampingFactor);
-          } else {
-            sphericalDelta.set(0, 0, 0);
-            panOffset.set(0, 0, 0);
-          }
-          let zoomChanged = false;
-          if (scope.zoomToCursor && performCursorZoom) {
-            let newRadius = null;
-            if (scope.object instanceof PerspectiveCamera && scope.object.isPerspectiveCamera) {
-              const prevRadius = offset.length();
-              newRadius = clampDistance(prevRadius * scale);
-              const radiusDelta = prevRadius - newRadius;
-              scope.object.position.addScaledVector(dollyDirection, radiusDelta);
-              scope.object.updateMatrixWorld();
-            } else if (scope.object.isOrthographicCamera) {
-              const mouseBefore = new Vector3(mouse.x, mouse.y, 0);
-              mouseBefore.unproject(scope.object);
-              scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / scale));
-              scope.object.updateProjectionMatrix();
-              zoomChanged = true;
-              const mouseAfter = new Vector3(mouse.x, mouse.y, 0);
-              mouseAfter.unproject(scope.object);
-              scope.object.position.sub(mouseAfter).add(mouseBefore);
-              scope.object.updateMatrixWorld();
-              newRadius = offset.length();
-            } else {
-              console.warn("WARNING: OrbitControls.js encountered an unknown camera type - zoom to cursor disabled.");
-              scope.zoomToCursor = false;
-            }
-            if (newRadius !== null) {
-              if (scope.screenSpacePanning) {
-                scope.target.set(0, 0, -1).transformDirection(scope.object.matrix).multiplyScalar(newRadius).add(scope.object.position);
-              } else {
-                _ray2.origin.copy(scope.object.position);
-                _ray2.direction.set(0, 0, -1).transformDirection(scope.object.matrix);
-                if (Math.abs(scope.object.up.dot(_ray2.direction)) < TILT_LIMIT) {
-                  object.lookAt(scope.target);
-                } else {
-                  _plane.setFromNormalAndCoplanarPoint(scope.object.up, scope.target);
-                  _ray2.intersectPlane(_plane, scope.target);
-                }
-              }
-            }
-          } else if (scope.object instanceof OrthographicCamera && scope.object.isOrthographicCamera) {
-            zoomChanged = scale !== 1;
-            if (zoomChanged) {
-              scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / scale));
-              scope.object.updateProjectionMatrix();
-            }
-          }
-          scale = 1;
-          performCursorZoom = false;
-          if (zoomChanged || lastPosition.distanceToSquared(scope.object.position) > EPS || 8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
-            scope.dispatchEvent(changeEvent);
-            lastPosition.copy(scope.object.position);
-            lastQuaternion.copy(scope.object.quaternion);
-            zoomChanged = false;
-            return true;
-          }
-          return false;
-        };
-      })();
-      this.connect = (domElement2) => {
-        scope.domElement = domElement2;
-        scope.domElement.style.touchAction = "none";
-        scope.domElement.addEventListener("contextmenu", onContextMenu);
-        scope.domElement.addEventListener("pointerdown", onPointerDown);
-        scope.domElement.addEventListener("pointercancel", onPointerUp);
-        scope.domElement.addEventListener("wheel", onMouseWheel);
-      };
-      this.dispose = () => {
-        var _a, _b, _c, _d, _e, _f;
-        if (scope.domElement) {
-          scope.domElement.style.touchAction = "auto";
-        }
-        (_a = scope.domElement) == null ? void 0 : _a.removeEventListener("contextmenu", onContextMenu);
-        (_b = scope.domElement) == null ? void 0 : _b.removeEventListener("pointerdown", onPointerDown);
-        (_c = scope.domElement) == null ? void 0 : _c.removeEventListener("pointercancel", onPointerUp);
-        (_d = scope.domElement) == null ? void 0 : _d.removeEventListener("wheel", onMouseWheel);
-        (_e = scope.domElement) == null ? void 0 : _e.ownerDocument.removeEventListener("pointermove", onPointerMove);
-        (_f = scope.domElement) == null ? void 0 : _f.ownerDocument.removeEventListener("pointerup", onPointerUp);
-        if (scope._domElementKeyEvents !== null) {
-          scope._domElementKeyEvents.removeEventListener("keydown", onKeyDown);
-        }
-      };
-      const scope = this;
-      const changeEvent = { type: "change" };
-      const startEvent = { type: "start" };
-      const endEvent = { type: "end" };
-      const STATE = {
-        NONE: -1,
-        ROTATE: 0,
-        DOLLY: 1,
-        PAN: 2,
-        TOUCH_ROTATE: 3,
-        TOUCH_PAN: 4,
-        TOUCH_DOLLY_PAN: 5,
-        TOUCH_DOLLY_ROTATE: 6
-      };
-      let state2 = STATE.NONE;
-      const EPS = 1e-6;
-      const spherical = new Spherical();
-      const sphericalDelta = new Spherical();
-      let scale = 1;
-      const panOffset = new Vector3();
-      const rotateStart = new Vector2();
-      const rotateEnd = new Vector2();
-      const rotateDelta = new Vector2();
-      const panStart = new Vector2();
-      const panEnd = new Vector2();
-      const panDelta = new Vector2();
-      const dollyStart = new Vector2();
-      const dollyEnd = new Vector2();
-      const dollyDelta = new Vector2();
-      const dollyDirection = new Vector3();
-      const mouse = new Vector2();
-      let performCursorZoom = false;
-      const pointers = [];
-      const pointerPositions = {};
-      function getAutoRotationAngle() {
-        return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
-      }
-      function getZoomScale() {
-        return Math.pow(0.95, scope.zoomSpeed);
-      }
-      function rotateLeft(angle) {
-        if (scope.reverseOrbit || scope.reverseHorizontalOrbit) {
-          sphericalDelta.theta += angle;
-        } else {
-          sphericalDelta.theta -= angle;
-        }
-      }
-      function rotateUp(angle) {
-        if (scope.reverseOrbit || scope.reverseVerticalOrbit) {
-          sphericalDelta.phi += angle;
-        } else {
-          sphericalDelta.phi -= angle;
-        }
-      }
-      const panLeft = (() => {
-        const v = new Vector3();
-        return function panLeft2(distance, objectMatrix) {
-          v.setFromMatrixColumn(objectMatrix, 0);
-          v.multiplyScalar(-distance);
-          panOffset.add(v);
-        };
-      })();
-      const panUp = (() => {
-        const v = new Vector3();
-        return function panUp2(distance, objectMatrix) {
-          if (scope.screenSpacePanning === true) {
-            v.setFromMatrixColumn(objectMatrix, 1);
-          } else {
-            v.setFromMatrixColumn(objectMatrix, 0);
-            v.crossVectors(scope.object.up, v);
-          }
-          v.multiplyScalar(distance);
-          panOffset.add(v);
-        };
-      })();
-      const pan = (() => {
-        const offset = new Vector3();
-        return function pan2(deltaX, deltaY) {
-          const element = scope.domElement;
-          if (element && scope.object instanceof PerspectiveCamera && scope.object.isPerspectiveCamera) {
-            const position = scope.object.position;
-            offset.copy(position).sub(scope.target);
-            let targetDistance = offset.length();
-            targetDistance *= Math.tan(scope.object.fov / 2 * Math.PI / 180);
-            panLeft(2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix);
-            panUp(2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix);
-          } else if (element && scope.object instanceof OrthographicCamera && scope.object.isOrthographicCamera) {
-            panLeft(
-              deltaX * (scope.object.right - scope.object.left) / scope.object.zoom / element.clientWidth,
-              scope.object.matrix
-            );
-            panUp(
-              deltaY * (scope.object.top - scope.object.bottom) / scope.object.zoom / element.clientHeight,
-              scope.object.matrix
-            );
-          } else {
-            console.warn("WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.");
-            scope.enablePan = false;
-          }
-        };
-      })();
-      function setScale(newScale) {
-        if (scope.object instanceof PerspectiveCamera && scope.object.isPerspectiveCamera || scope.object instanceof OrthographicCamera && scope.object.isOrthographicCamera) {
-          scale = newScale;
-        } else {
-          console.warn("WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.");
-          scope.enableZoom = false;
-        }
-      }
-      function dollyOut(dollyScale) {
-        setScale(scale / dollyScale);
-      }
-      function dollyIn(dollyScale) {
-        setScale(scale * dollyScale);
-      }
-      function updateMouseParameters(event) {
-        if (!scope.zoomToCursor || !scope.domElement) {
-          return;
-        }
-        performCursorZoom = true;
-        const rect = scope.domElement.getBoundingClientRect();
-        const x2 = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const w = rect.width;
-        const h2 = rect.height;
-        mouse.x = x2 / w * 2 - 1;
-        mouse.y = -(y / h2) * 2 + 1;
-        dollyDirection.set(mouse.x, mouse.y, 1).unproject(scope.object).sub(scope.object.position).normalize();
-      }
-      function clampDistance(dist) {
-        return Math.max(scope.minDistance, Math.min(scope.maxDistance, dist));
-      }
-      function handleMouseDownRotate(event) {
-        rotateStart.set(event.clientX, event.clientY);
-      }
-      function handleMouseDownDolly(event) {
-        updateMouseParameters(event);
-        dollyStart.set(event.clientX, event.clientY);
-      }
-      function handleMouseDownPan(event) {
-        panStart.set(event.clientX, event.clientY);
-      }
-      function handleMouseMoveRotate(event) {
-        rotateEnd.set(event.clientX, event.clientY);
-        rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
-        const element = scope.domElement;
-        if (element) {
-          rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight);
-          rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
-        }
-        rotateStart.copy(rotateEnd);
-        scope.update();
-      }
-      function handleMouseMoveDolly(event) {
-        dollyEnd.set(event.clientX, event.clientY);
-        dollyDelta.subVectors(dollyEnd, dollyStart);
-        if (dollyDelta.y > 0) {
-          dollyOut(getZoomScale());
-        } else if (dollyDelta.y < 0) {
-          dollyIn(getZoomScale());
-        }
-        dollyStart.copy(dollyEnd);
-        scope.update();
-      }
-      function handleMouseMovePan(event) {
-        panEnd.set(event.clientX, event.clientY);
-        panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
-        pan(panDelta.x, panDelta.y);
-        panStart.copy(panEnd);
-        scope.update();
-      }
-      function handleMouseWheel(event) {
-        updateMouseParameters(event);
-        if (event.deltaY < 0) {
-          dollyIn(getZoomScale());
-        } else if (event.deltaY > 0) {
-          dollyOut(getZoomScale());
-        }
-        scope.update();
-      }
-      function handleKeyDown(event) {
-        let needsUpdate = false;
-        switch (event.code) {
-          case scope.keys.UP:
-            pan(0, scope.keyPanSpeed);
-            needsUpdate = true;
-            break;
-          case scope.keys.BOTTOM:
-            pan(0, -scope.keyPanSpeed);
-            needsUpdate = true;
-            break;
-          case scope.keys.LEFT:
-            pan(scope.keyPanSpeed, 0);
-            needsUpdate = true;
-            break;
-          case scope.keys.RIGHT:
-            pan(-scope.keyPanSpeed, 0);
-            needsUpdate = true;
-            break;
-        }
-        if (needsUpdate) {
-          event.preventDefault();
-          scope.update();
-        }
-      }
-      function handleTouchStartRotate() {
-        if (pointers.length == 1) {
-          rotateStart.set(pointers[0].pageX, pointers[0].pageY);
-        } else {
-          const x2 = 0.5 * (pointers[0].pageX + pointers[1].pageX);
-          const y = 0.5 * (pointers[0].pageY + pointers[1].pageY);
-          rotateStart.set(x2, y);
-        }
-      }
-      function handleTouchStartPan() {
-        if (pointers.length == 1) {
-          panStart.set(pointers[0].pageX, pointers[0].pageY);
-        } else {
-          const x2 = 0.5 * (pointers[0].pageX + pointers[1].pageX);
-          const y = 0.5 * (pointers[0].pageY + pointers[1].pageY);
-          panStart.set(x2, y);
-        }
-      }
-      function handleTouchStartDolly() {
-        const dx = pointers[0].pageX - pointers[1].pageX;
-        const dy = pointers[0].pageY - pointers[1].pageY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        dollyStart.set(0, distance);
-      }
-      function handleTouchStartDollyPan() {
-        if (scope.enableZoom)
-          handleTouchStartDolly();
-        if (scope.enablePan)
-          handleTouchStartPan();
-      }
-      function handleTouchStartDollyRotate() {
-        if (scope.enableZoom)
-          handleTouchStartDolly();
-        if (scope.enableRotate)
-          handleTouchStartRotate();
-      }
-      function handleTouchMoveRotate(event) {
-        if (pointers.length == 1) {
-          rotateEnd.set(event.pageX, event.pageY);
-        } else {
-          const position = getSecondPointerPosition(event);
-          const x2 = 0.5 * (event.pageX + position.x);
-          const y = 0.5 * (event.pageY + position.y);
-          rotateEnd.set(x2, y);
-        }
-        rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
-        const element = scope.domElement;
-        if (element) {
-          rotateLeft(2 * Math.PI * rotateDelta.x / element.clientHeight);
-          rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
-        }
-        rotateStart.copy(rotateEnd);
-      }
-      function handleTouchMovePan(event) {
-        if (pointers.length == 1) {
-          panEnd.set(event.pageX, event.pageY);
-        } else {
-          const position = getSecondPointerPosition(event);
-          const x2 = 0.5 * (event.pageX + position.x);
-          const y = 0.5 * (event.pageY + position.y);
-          panEnd.set(x2, y);
-        }
-        panDelta.subVectors(panEnd, panStart).multiplyScalar(scope.panSpeed);
-        pan(panDelta.x, panDelta.y);
-        panStart.copy(panEnd);
-      }
-      function handleTouchMoveDolly(event) {
-        const position = getSecondPointerPosition(event);
-        const dx = event.pageX - position.x;
-        const dy = event.pageY - position.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        dollyEnd.set(0, distance);
-        dollyDelta.set(0, Math.pow(dollyEnd.y / dollyStart.y, scope.zoomSpeed));
-        dollyOut(dollyDelta.y);
-        dollyStart.copy(dollyEnd);
-      }
-      function handleTouchMoveDollyPan(event) {
-        if (scope.enableZoom)
-          handleTouchMoveDolly(event);
-        if (scope.enablePan)
-          handleTouchMovePan(event);
-      }
-      function handleTouchMoveDollyRotate(event) {
-        if (scope.enableZoom)
-          handleTouchMoveDolly(event);
-        if (scope.enableRotate)
-          handleTouchMoveRotate(event);
-      }
-      function onPointerDown(event) {
-        var _a, _b;
-        if (scope.enabled === false)
-          return;
-        if (pointers.length === 0) {
-          (_a = scope.domElement) == null ? void 0 : _a.ownerDocument.addEventListener("pointermove", onPointerMove);
-          (_b = scope.domElement) == null ? void 0 : _b.ownerDocument.addEventListener("pointerup", onPointerUp);
-        }
-        addPointer(event);
-        if (event.pointerType === "touch") {
-          onTouchStart(event);
-        } else {
-          onMouseDown(event);
-        }
-      }
-      function onPointerMove(event) {
-        if (scope.enabled === false)
-          return;
-        if (event.pointerType === "touch") {
-          onTouchMove(event);
-        } else {
-          onMouseMove(event);
-        }
-      }
-      function onPointerUp(event) {
-        var _a, _b, _c;
-        removePointer(event);
-        if (pointers.length === 0) {
-          (_a = scope.domElement) == null ? void 0 : _a.releasePointerCapture(event.pointerId);
-          (_b = scope.domElement) == null ? void 0 : _b.ownerDocument.removeEventListener("pointermove", onPointerMove);
-          (_c = scope.domElement) == null ? void 0 : _c.ownerDocument.removeEventListener("pointerup", onPointerUp);
-        }
-        scope.dispatchEvent(endEvent);
-        state2 = STATE.NONE;
-      }
-      function onMouseDown(event) {
-        let mouseAction;
-        switch (event.button) {
-          case 0:
-            mouseAction = scope.mouseButtons.LEFT;
-            break;
-          case 1:
-            mouseAction = scope.mouseButtons.MIDDLE;
-            break;
-          case 2:
-            mouseAction = scope.mouseButtons.RIGHT;
-            break;
-          default:
-            mouseAction = -1;
-        }
-        switch (mouseAction) {
-          case MOUSE.DOLLY:
-            if (scope.enableZoom === false)
-              return;
-            handleMouseDownDolly(event);
-            state2 = STATE.DOLLY;
-            break;
-          case MOUSE.ROTATE:
-            if (event.ctrlKey || event.metaKey || event.shiftKey) {
-              if (scope.enablePan === false)
-                return;
-              handleMouseDownPan(event);
-              state2 = STATE.PAN;
-            } else {
-              if (scope.enableRotate === false)
-                return;
-              handleMouseDownRotate(event);
-              state2 = STATE.ROTATE;
-            }
-            break;
-          case MOUSE.PAN:
-            if (event.ctrlKey || event.metaKey || event.shiftKey) {
-              if (scope.enableRotate === false)
-                return;
-              handleMouseDownRotate(event);
-              state2 = STATE.ROTATE;
-            } else {
-              if (scope.enablePan === false)
-                return;
-              handleMouseDownPan(event);
-              state2 = STATE.PAN;
-            }
-            break;
-          default:
-            state2 = STATE.NONE;
-        }
-        if (state2 !== STATE.NONE) {
-          scope.dispatchEvent(startEvent);
-        }
-      }
-      function onMouseMove(event) {
-        if (scope.enabled === false)
-          return;
-        switch (state2) {
-          case STATE.ROTATE:
-            if (scope.enableRotate === false)
-              return;
-            handleMouseMoveRotate(event);
-            break;
-          case STATE.DOLLY:
-            if (scope.enableZoom === false)
-              return;
-            handleMouseMoveDolly(event);
-            break;
-          case STATE.PAN:
-            if (scope.enablePan === false)
-              return;
-            handleMouseMovePan(event);
-            break;
-        }
-      }
-      function onMouseWheel(event) {
-        if (scope.enabled === false || scope.enableZoom === false || state2 !== STATE.NONE && state2 !== STATE.ROTATE) {
-          return;
-        }
-        event.preventDefault();
-        scope.dispatchEvent(startEvent);
-        handleMouseWheel(event);
-        scope.dispatchEvent(endEvent);
-      }
-      function onKeyDown(event) {
-        if (scope.enabled === false || scope.enablePan === false)
-          return;
-        handleKeyDown(event);
-      }
-      function onTouchStart(event) {
-        trackPointer(event);
-        switch (pointers.length) {
-          case 1:
-            switch (scope.touches.ONE) {
-              case TOUCH.ROTATE:
-                if (scope.enableRotate === false)
-                  return;
-                handleTouchStartRotate();
-                state2 = STATE.TOUCH_ROTATE;
-                break;
-              case TOUCH.PAN:
-                if (scope.enablePan === false)
-                  return;
-                handleTouchStartPan();
-                state2 = STATE.TOUCH_PAN;
-                break;
-              default:
-                state2 = STATE.NONE;
-            }
-            break;
-          case 2:
-            switch (scope.touches.TWO) {
-              case TOUCH.DOLLY_PAN:
-                if (scope.enableZoom === false && scope.enablePan === false)
-                  return;
-                handleTouchStartDollyPan();
-                state2 = STATE.TOUCH_DOLLY_PAN;
-                break;
-              case TOUCH.DOLLY_ROTATE:
-                if (scope.enableZoom === false && scope.enableRotate === false)
-                  return;
-                handleTouchStartDollyRotate();
-                state2 = STATE.TOUCH_DOLLY_ROTATE;
-                break;
-              default:
-                state2 = STATE.NONE;
-            }
-            break;
-          default:
-            state2 = STATE.NONE;
-        }
-        if (state2 !== STATE.NONE) {
-          scope.dispatchEvent(startEvent);
-        }
-      }
-      function onTouchMove(event) {
-        trackPointer(event);
-        switch (state2) {
-          case STATE.TOUCH_ROTATE:
-            if (scope.enableRotate === false)
-              return;
-            handleTouchMoveRotate(event);
-            scope.update();
-            break;
-          case STATE.TOUCH_PAN:
-            if (scope.enablePan === false)
-              return;
-            handleTouchMovePan(event);
-            scope.update();
-            break;
-          case STATE.TOUCH_DOLLY_PAN:
-            if (scope.enableZoom === false && scope.enablePan === false)
-              return;
-            handleTouchMoveDollyPan(event);
-            scope.update();
-            break;
-          case STATE.TOUCH_DOLLY_ROTATE:
-            if (scope.enableZoom === false && scope.enableRotate === false)
-              return;
-            handleTouchMoveDollyRotate(event);
-            scope.update();
-            break;
-          default:
-            state2 = STATE.NONE;
-        }
-      }
-      function onContextMenu(event) {
-        if (scope.enabled === false)
-          return;
-        event.preventDefault();
-      }
-      function addPointer(event) {
-        pointers.push(event);
-      }
-      function removePointer(event) {
-        delete pointerPositions[event.pointerId];
-        for (let i3 = 0; i3 < pointers.length; i3++) {
-          if (pointers[i3].pointerId == event.pointerId) {
-            pointers.splice(i3, 1);
-            return;
-          }
-        }
-      }
-      function trackPointer(event) {
-        let position = pointerPositions[event.pointerId];
-        if (position === void 0) {
-          position = new Vector2();
-          pointerPositions[event.pointerId] = position;
-        }
-        position.set(event.pageX, event.pageY);
-      }
-      function getSecondPointerPosition(event) {
-        const pointer = event.pointerId === pointers[0].pointerId ? pointers[1] : pointers[0];
-        return pointerPositions[pointer.pointerId];
-      }
-      this.dollyIn = (dollyScale = getZoomScale()) => {
-        dollyIn(dollyScale);
-        scope.update();
-      };
-      this.dollyOut = (dollyScale = getZoomScale()) => {
-        dollyOut(dollyScale);
-        scope.update();
-      };
-      this.getScale = () => {
-        return scale;
-      };
-      this.setScale = (newScale) => {
-        setScale(newScale);
-        scope.update();
-      };
-      this.getZoomScale = () => {
-        return getZoomScale();
-      };
-      if (domElement !== void 0)
-        this.connect(domElement);
-      this.update();
-    }
-  };
-
-  // node_modules/@react-three/drei/core/OrbitControls.js
-  var React4 = __toESM(require_react());
-  var OrbitControls2 = /* @__PURE__ */ React4.forwardRef(({
-    makeDefault,
-    camera,
-    regress,
-    domElement,
-    enableDamping = true,
-    keyEvents = false,
-    onChange,
-    onStart,
-    onEnd,
-    ...restProps
-  }, ref) => {
-    const invalidate2 = useThree((state2) => state2.invalidate);
-    const defaultCamera = useThree((state2) => state2.camera);
-    const gl = useThree((state2) => state2.gl);
-    const events = useThree((state2) => state2.events);
-    const setEvents = useThree((state2) => state2.setEvents);
-    const set = useThree((state2) => state2.set);
-    const get = useThree((state2) => state2.get);
-    const performance2 = useThree((state2) => state2.performance);
-    const explCamera = camera || defaultCamera;
-    const explDomElement = domElement || events.connected || gl.domElement;
-    const controls = React4.useMemo(() => new OrbitControls(explCamera), [explCamera]);
-    useFrame(() => {
-      if (controls.enabled) controls.update();
-    }, -1);
-    React4.useEffect(() => {
-      if (keyEvents) {
-        controls.connect(keyEvents === true ? explDomElement : keyEvents);
-      }
-      controls.connect(explDomElement);
-      return () => void controls.dispose();
-    }, [keyEvents, explDomElement, regress, controls, invalidate2]);
-    React4.useEffect(() => {
-      const callback = (e2) => {
-        invalidate2();
-        if (regress) performance2.regress();
-        if (onChange) onChange(e2);
-      };
-      const onStartCb = (e2) => {
-        if (onStart) onStart(e2);
-      };
-      const onEndCb = (e2) => {
-        if (onEnd) onEnd(e2);
-      };
-      controls.addEventListener("change", callback);
-      controls.addEventListener("start", onStartCb);
-      controls.addEventListener("end", onEndCb);
-      return () => {
-        controls.removeEventListener("start", onStartCb);
-        controls.removeEventListener("end", onEndCb);
-        controls.removeEventListener("change", callback);
-      };
-    }, [onChange, onStart, onEnd, controls, invalidate2, setEvents]);
-    React4.useEffect(() => {
-      if (makeDefault) {
-        const old = get().controls;
-        set({
-          controls
-        });
-        return () => set({
-          controls: old
-        });
-      }
-    }, [makeDefault, controls]);
-    return /* @__PURE__ */ React4.createElement("primitive", _extends({
-      ref,
-      object: controls,
-      enableDamping
-    }, restProps));
-  });
-
-  // node_modules/camera-controls/dist/camera-controls.module.js
-  var ACTION = Object.freeze({
-    NONE: 0,
-    ROTATE: 1,
-    TRUCK: 2,
-    SCREEN_PAN: 4,
-    OFFSET: 8,
-    DOLLY: 16,
-    ZOOM: 32,
-    TOUCH_ROTATE: 64,
-    TOUCH_TRUCK: 128,
-    TOUCH_SCREEN_PAN: 256,
-    TOUCH_OFFSET: 512,
-    TOUCH_DOLLY: 1024,
-    TOUCH_ZOOM: 2048,
-    TOUCH_DOLLY_TRUCK: 4096,
-    TOUCH_DOLLY_SCREEN_PAN: 8192,
-    TOUCH_DOLLY_OFFSET: 16384,
-    TOUCH_DOLLY_ROTATE: 32768,
-    TOUCH_ZOOM_TRUCK: 65536,
-    TOUCH_ZOOM_OFFSET: 131072,
-    TOUCH_ZOOM_SCREEN_PAN: 262144,
-    TOUCH_ZOOM_ROTATE: 524288
-  });
-  var PI_2 = Math.PI * 2;
-  var PI_HALF = Math.PI / 2;
-  var DEG2RAD2 = Math.PI / 180;
-  var TOUCH_DOLLY_FACTOR = 1 / 8;
-  var isMac = /Mac/.test(globalThis?.navigator?.platform);
-
   // src/visualizer/index.jsx
-  var RenderManager = ({ ecoMode }) => {
-    const { gl, scene, camera } = useThree();
-    const lastRender = (0, import_react4.useRef)(0);
-    useFrame((state2) => {
-      const now = state2.clock.elapsedTime;
-      if (ecoMode) {
-        if (now - lastRender.current < 1 / 30) return;
+  var Lantern = () => {
+    const coreRef = (0, import_react4.useRef)();
+    const wireRef = (0, import_react4.useRef)();
+    const hueRef = (0, import_react4.useRef)(0);
+    const scaleRef = (0, import_react4.useRef)(1);
+    useFrame(() => {
+      if (coreRef.current && wireRef.current) {
+        coreRef.current.rotation.x += 4e-3;
+        coreRef.current.rotation.y += 6e-3;
+        wireRef.current.rotation.x -= 3e-3;
+        wireRef.current.rotation.y -= 5e-3;
       }
-      lastRender.current = now;
-      gl.render(scene, camera);
-    }, 1);
-    return null;
-  };
-  var ParticleField = () => {
-    const meshRef = (0, import_react4.useRef)();
-    const materialRef = (0, import_react4.useRef)();
-    const count = 1e4;
-    const gridSize = Math.ceil(Math.sqrt(count));
-    const spacing = 0.3;
-    const dummy = (0, import_react4.useMemo)(() => new Object3D(), []);
-    const audioTexture = (0, import_react4.useMemo)(() => {
-      const data = new Uint8Array(256);
-      const tex = new DataTexture(data, 256, 1, RedFormat, UnsignedByteType);
-      tex.needsUpdate = true;
-      return tex;
-    }, []);
-    (0, import_react4.useEffect)(() => {
-      let i3 = 0;
-      const offset = gridSize * spacing / 2;
-      for (let x2 = 0; x2 < gridSize; x2++) {
-        for (let z = 0; z < gridSize; z++) {
-          if (i3 >= count) break;
-          dummy.position.set(
-            x2 * spacing - offset,
-            0,
-            z * spacing - offset
-          );
-          dummy.updateMatrix();
-          meshRef.current.setMatrixAt(i3, dummy.matrix);
-          i3++;
+      if (window.streamAnalyser && window.visualizerDataArray) {
+        window.streamAnalyser.getByteFrequencyData(window.visualizerDataArray);
+        let bassSum = 0;
+        for (let i3 = 0; i3 < 10; i3++) {
+          bassSum += window.visualizerDataArray[i3] || 0;
         }
-      }
-      meshRef.current.instanceMatrix.needsUpdate = true;
-    }, [dummy, gridSize, spacing, count]);
-    const uniforms = (0, import_react4.useMemo)(() => ({
-      uTime: { value: 0 },
-      uAudio: { value: audioTexture }
-    }), [audioTexture]);
-    useFrame((state2) => {
-      if (materialRef.current) {
-        materialRef.current.uniforms.uTime.value = state2.clock.elapsedTime;
-        if (window.visualizerDataArray && window.streamAnalyser) {
-          window.streamAnalyser.getByteFrequencyData(window.visualizerDataArray);
-          audioTexture.image.data.set(window.visualizerDataArray);
-          audioTexture.needsUpdate = true;
+        let bassAvg = bassSum / 10;
+        let targetScale = 1 + Math.pow(bassAvg / 255, 2) * 0.8;
+        scaleRef.current += (targetScale - scaleRef.current) * 0.25;
+        if (coreRef.current && wireRef.current) {
+          coreRef.current.scale.set(scaleRef.current, scaleRef.current, scaleRef.current);
+          wireRef.current.scale.set(scaleRef.current * 1.15, scaleRef.current * 1.15, scaleRef.current * 1.15);
         }
-      }
-      if (meshRef.current) {
-        meshRef.current.rotation.y = state2.clock.elapsedTime * 0.1;
+        hueRef.current += 3e-3 + bassAvg / 255 * 0.01;
+        if (hueRef.current > 1) hueRef.current -= 1;
+        if (coreRef.current.material) {
+          let lightness = 0.2 + Math.pow(bassAvg / 255, 2) * 0.4;
+          coreRef.current.material.color.setHSL(hueRef.current, 1, 0.3);
+          coreRef.current.material.emissive.setHSL(hueRef.current, 1, lightness);
+        }
       }
     });
-    const vertexShader = `
-    uniform float uTime;
-    uniform sampler2D uAudio;
-    
-    varying float vAudioValue;
-    
-    void main() {
-      vec3 instPos = vec3(instanceMatrix[3][0], instanceMatrix[3][1], instanceMatrix[3][2]);
-      
-      float dist = length(instPos.xz);
-      float audioIndex = fract(dist * 0.05); // Map distance to 0-1 texture bounds
-      
-      float audioVal = texture2D(uAudio, vec2(audioIndex, 0.0)).r;
-      vAudioValue = audioVal;
-      
-      float wave = sin(instPos.x * 0.5 + uTime) * cos(instPos.z * 0.5 + uTime) * 1.5;
-      float displacement = wave + (audioVal * 8.0 * exp(-dist * 0.15));
-      
-      vec3 finalPos = position + instPos;
-      finalPos.y += displacement;
-      
-      vec4 mvPosition = viewMatrix * modelMatrix * vec4(finalPos, 1.0);
-      gl_Position = projectionMatrix * mvPosition;
-    }
-  `;
-    const fragmentShader = `
-    uniform float uTime;
-    varying float vAudioValue;
-    
-    void main() {
-      vec3 baseColor = vec3(0.0, 0.1, 0.3); // Deep blue
-      vec3 activeColor = vec3(1.0, 0.33, 0.0); // Stream Suite Orange
-      
-      vec3 finalColor = mix(baseColor, activeColor, vAudioValue * 1.5);
-      
-      gl_FragColor = vec4(finalColor, 1.0);
-    }
-  `;
-    return /* @__PURE__ */ import_react4.default.createElement("instancedMesh", { ref: meshRef, args: [null, null, count] }, /* @__PURE__ */ import_react4.default.createElement("sphereGeometry", { args: [0.08, 4, 4] }), /* @__PURE__ */ import_react4.default.createElement(
-      "shaderMaterial",
+    return /* @__PURE__ */ import_react4.default.createElement("group", null, /* @__PURE__ */ import_react4.default.createElement("mesh", { ref: coreRef }, /* @__PURE__ */ import_react4.default.createElement("icosahedronGeometry", { args: [1.5, 2] }), " ", /* @__PURE__ */ import_react4.default.createElement(
+      "meshStandardMaterial",
       {
-        ref: materialRef,
-        vertexShader,
-        fragmentShader,
-        uniforms,
-        transparent: true,
-        blending: AdditiveBlending,
-        depthWrite: false
+        color: 16711765,
+        emissive: 16711765,
+        emissiveIntensity: 1.2,
+        flatShading: true,
+        roughness: 0.2,
+        metalness: 0.8
       }
-    ));
+    )), /* @__PURE__ */ import_react4.default.createElement("mesh", { ref: wireRef }, /* @__PURE__ */ import_react4.default.createElement("icosahedronGeometry", { args: [1.5, 2] }), " ", /* @__PURE__ */ import_react4.default.createElement(
+      "meshBasicMaterial",
+      {
+        color: 16777215,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.25
+      }
+    )));
+  };
+  var Streaks = () => {
+    const meshRef = (0, import_react4.useRef)();
+    const count = 150;
+    const dummy = (0, import_react4.useMemo)(() => new Object3D(), []);
+    const particles = (0, import_react4.useMemo)(() => {
+      const temp = [];
+      for (let i3 = 0; i3 < count; i3++) {
+        const dir = new Vector3(
+          (Math.random() - 0.5) * 2,
+          (Math.random() - 0.5) * 2,
+          (Math.random() - 0.5) * 2
+        ).normalize();
+        const dist = Math.random() * 20 + 3;
+        const pos = dir.clone().multiplyScalar(dist);
+        temp.push({ dir, pos, speed: Math.random() * 0.6 + 0.2, length: Math.random() * 4 + 1 });
+      }
+      return temp;
+    }, [count]);
+    useFrame(() => {
+      let audioSpeed = 1;
+      let audioHue = 0.8;
+      let midAvg = 0;
+      if (window.streamAnalyser && window.visualizerDataArray) {
+        let midSum = 0;
+        for (let i3 = 15; i3 < 80; i3++) {
+          midSum += window.visualizerDataArray[i3] || 0;
+        }
+        midAvg = midSum / 65;
+        audioSpeed = 1 + Math.pow(midAvg / 255, 2) * 50;
+        audioHue = Date.now() % 4e3 / 4e3;
+      }
+      particles.forEach((p3, i3) => {
+        p3.pos.addScaledVector(p3.dir, p3.speed * audioSpeed * 0.05);
+        if (p3.pos.length() > 50) {
+          p3.pos.copy(p3.dir).multiplyScalar(2 + Math.random() * 2);
+        }
+        dummy.position.copy(p3.pos);
+        dummy.quaternion.setFromUnitVectors(new Vector3(0, 1, 0), p3.dir);
+        dummy.scale.set(0.04 + midAvg / 255 * 0.04, p3.length * audioSpeed * 0.3, 0.04 + midAvg / 255 * 0.04);
+        dummy.updateMatrix();
+        if (meshRef.current) {
+          meshRef.current.setMatrixAt(i3, dummy.matrix);
+          const color = new Color();
+          color.setHSL((audioHue + i3 / count * 0.5) % 1, 1, 0.4 + midAvg / 255 * 0.5);
+          meshRef.current.setColorAt(i3, color);
+        }
+      });
+      if (meshRef.current) {
+        meshRef.current.instanceMatrix.needsUpdate = true;
+        if (meshRef.current.instanceColor) meshRef.current.instanceColor.needsUpdate = true;
+      }
+    });
+    return /* @__PURE__ */ import_react4.default.createElement("instancedMesh", { ref: meshRef, args: [null, null, count] }, /* @__PURE__ */ import_react4.default.createElement("cylinderGeometry", { args: [1, 1, 1, 4] }), /* @__PURE__ */ import_react4.default.createElement("meshBasicMaterial", { toneMapped: false }));
+  };
+  var SceneRotator = ({ children }) => {
+    const groupRef = (0, import_react4.useRef)();
+    useFrame(() => {
+      if (groupRef.current) {
+        groupRef.current.rotation.y += 2e-3;
+        groupRef.current.rotation.x += 1e-3;
+      }
+    });
+    return /* @__PURE__ */ import_react4.default.createElement("group", { ref: groupRef }, children);
+  };
+  var CameraController = () => {
+    const { camera } = useThree();
+    const angleRef = (0, import_react4.useRef)(0);
+    const dirRef = (0, import_react4.useRef)(1);
+    const cooldownRef = (0, import_react4.useRef)(0);
+    const currentSpeed = (0, import_react4.useRef)(5e-3);
+    useFrame(() => {
+      let targetSpeed = 5e-3;
+      if (window.streamAnalyser && window.visualizerDataArray) {
+        let bassSum = 0;
+        let totalSum = 0;
+        const dataLen = window.visualizerDataArray.length;
+        for (let i3 = 0; i3 < dataLen; i3++) {
+          if (i3 < 10) bassSum += window.visualizerDataArray[i3] || 0;
+          totalSum += window.visualizerDataArray[i3] || 0;
+        }
+        let bassAvg = bassSum / 10;
+        let totalAvg = totalSum / dataLen;
+        targetSpeed = 2e-3 + totalAvg / 255 * 0.035;
+        if (bassAvg > 230 && cooldownRef.current <= 0) {
+          dirRef.current *= -1;
+          cooldownRef.current = 80;
+        }
+        if (cooldownRef.current > 0) cooldownRef.current--;
+      }
+      currentSpeed.current += (targetSpeed - currentSpeed.current) * 0.05;
+      angleRef.current += currentSpeed.current * dirRef.current;
+      const radius = 7;
+      const yOffset = Math.sin(angleRef.current * 1.5) * 1.5;
+      camera.position.x = Math.sin(angleRef.current) * radius;
+      camera.position.z = Math.cos(angleRef.current) * radius;
+      camera.position.y = yOffset;
+      camera.lookAt(0, 0, 0);
+    });
+    return null;
+  };
+  var LightReactor = () => {
+    const lightRef = (0, import_react4.useRef)();
+    const ambientRef = (0, import_react4.useRef)();
+    const targetIntensity = (0, import_react4.useRef)(2);
+    useFrame(() => {
+      if (window.streamAnalyser && window.visualizerDataArray) {
+        let highSum = 0;
+        let bassSum = 0;
+        for (let i3 = 150; i3 < 220; i3++) {
+          highSum += window.visualizerDataArray[i3] || 0;
+        }
+        for (let i3 = 0; i3 < 10; i3++) {
+          bassSum += window.visualizerDataArray[i3] || 0;
+        }
+        let highAvg = highSum / 70;
+        let bassAvg = bassSum / 10;
+        let flash = Math.pow(highAvg / 255, 2) * 2 + Math.pow(bassAvg / 255, 3) * 1.5;
+        targetIntensity.current = 0.5 + flash;
+      }
+      if (lightRef.current) {
+        lightRef.current.intensity += (targetIntensity.current * 1.5 - lightRef.current.intensity) * 0.4;
+      }
+      if (ambientRef.current) {
+        ambientRef.current.intensity = 0.2 + targetIntensity.current * 0.15;
+      }
+    });
+    return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement("ambientLight", { ref: ambientRef, intensity: 0.5 }), /* @__PURE__ */ import_react4.default.createElement("pointLight", { ref: lightRef, position: [0, 0, 0], intensity: 2, distance: 30 }));
   };
   var App = () => {
-    const [ecoMode, setEcoMode] = (0, import_react4.useState)(window.visualizerEcoMode || false);
     const [disabled, setDisabled] = (0, import_react4.useState)(window.visualizerDisabled || false);
     (0, import_react4.useEffect)(() => {
       const handleConfigChange = () => {
-        setEcoMode(window.visualizerEcoMode || false);
         setDisabled(window.visualizerDisabled || false);
       };
       window.addEventListener("visualizer-config-changed", handleConfigChange);
@@ -76482,14 +75528,13 @@ No matching component was found for:
     return /* @__PURE__ */ import_react4.default.createElement(
       Canvas,
       {
-        camera: { position: [0, 8, 15], fov: 45 },
-        gl: { antialias: !ecoMode, powerPreference: "high-performance" }
+        camera: { position: [0, 0, 7], fov: 75 },
+        gl: { antialias: true, powerPreference: "high-performance", alpha: true },
+        dpr: [1, 2]
       },
-      /* @__PURE__ */ import_react4.default.createElement("color", { attach: "background", args: ["#000000"] }),
-      /* @__PURE__ */ import_react4.default.createElement("ambientLight", { intensity: 0.5 }),
-      /* @__PURE__ */ import_react4.default.createElement(ParticleField, null),
-      /* @__PURE__ */ import_react4.default.createElement(OrbitControls2, { enableZoom: false, autoRotate: false }),
-      /* @__PURE__ */ import_react4.default.createElement(RenderManager, { ecoMode })
+      /* @__PURE__ */ import_react4.default.createElement(CameraController, null),
+      /* @__PURE__ */ import_react4.default.createElement(LightReactor, null),
+      /* @__PURE__ */ import_react4.default.createElement(SceneRotator, null, /* @__PURE__ */ import_react4.default.createElement(Streaks, null), /* @__PURE__ */ import_react4.default.createElement(Lantern, null))
     );
   };
   function mountVisualizer(containerId) {
@@ -76499,9 +75544,13 @@ No matching component was found for:
       root.render(/* @__PURE__ */ import_react4.default.createElement(App, null));
     }
   }
-  document.addEventListener("DOMContentLoaded", () => {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      mountVisualizer("react-visualizer-root");
+    });
+  } else {
     mountVisualizer("react-visualizer-root");
-  });
+  }
   return __toCommonJS(index_exports);
 })();
 /*! Bundled license information:
@@ -76621,13 +75670,5 @@ three/build/three.module.js:
   * This source code is licensed under the MIT license found in the
   * LICENSE file in the root directory of this source tree.
   *)
-
-camera-controls/dist/camera-controls.module.js:
-  (*!
-   * camera-controls
-   * https://github.com/yomotsu/camera-controls
-   * (c) 2017 @yomotsu
-   * Released under the MIT License.
-   *)
 */
 //# sourceMappingURL=visualizer.bundle.js.map

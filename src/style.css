@@ -114,7 +114,7 @@ button { padding: 10px 20px; font-size: 1rem; border: none; border-radius: 4px; 
     bottom: 30px !important;
     left: 30px !important;
     width: auto !important;
-    max-width: 450px !important; /* STRICT limit so it never takes up 2/3 of the screen */
+    max-width: 80% !important; /* Allow the box to expand with a longer show or host name */
     padding: 15px 25px !important;
     transform: none !important; /* Remove any previous centering logic */
     top: auto !important;
@@ -273,21 +273,44 @@ button { padding: 10px 20px; font-size: 1rem; border: none; border-radius: 4px; 
 }
 
 /* =========================================
-   GLOBAL SLIDING BANNER & TICKER
+   STATIC POP-UP BANNER (REFINED)
 ========================================= */
 #global-banner-container {
-    position: absolute; bottom: -100px; left: 0; width: 100%; height: 60px;
-    background: rgba(0, 0, 0, 0.9); border-top: 3px solid #ff5500; z-index: 9999; 
-    display: flex; align-items: center; transition: bottom 0.6s ease-in-out, top 0.6s ease-in-out;
-}
-#global-banner-container.banner-visible { bottom: 0; }
+    position: absolute;
+    /* Where it rests when visible */
+    bottom: calc(var(--overlay-padding) + 40px); 
+    left: 50%; 
+    
+    /* Auto-sizing to hug the text instead of taking the whole screen */
+    width: max-content; 
+    max-width: 80%; 
+    padding: 15px 50px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle glowing edge */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    
+    z-index: 9999; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
 
-.ticker-wrap { width: 100%; overflow: hidden; white-space: nowrap; box-sizing: border-box; }
-.ticker-text {
-    display: inline-block; padding-left: 100%; font-size: 2.5rem; color: #ffffff;
-    font-family: sans-serif; letter-spacing: 2px; animation: tickerScroll 20s linear infinite;
+    /* The Hiding Mechanism (Pushes down and fades out) */
+    transform: translate(-50%, 250px); 
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); /* Buttery smooth snap animation */
 }
-@keyframes tickerScroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+
+#global-banner-container.banner-visible { 
+    /* Brings it up into position and fades in */
+    transform: translate(-50%, 0); 
+    opacity: 1;
+}
+
+.banner-wrap { width: 100%; box-sizing: border-box; text-align: center; }
+.banner-text {
+    display: inline-block; font-size: 2.5rem; color: #ffffff;
+    font-family: sans-serif; letter-spacing: 2px; margin: 0; padding: 0;
+}
 
 /* =========================================
    WINDOW CONTROLS & DRAG REGION
@@ -305,7 +328,7 @@ button { padding: 10px 20px; font-size: 1rem; border: none; border-radius: 4px; 
 /* =========================================
    DYNAMIC SPONSOR OVERLAY SYSTEM
 ========================================= */
-#sponsor-overlay {
+.sponsor-overlay {
     position: absolute !important;
     max-width: 250px; /* Limits size so it doesn't overpower the screen */
     max-height: 150px;
@@ -339,4 +362,13 @@ button { padding: 10px 20px; font-size: 1rem; border: none; border-radius: 4px; 
     width: 100%;
     display: flex;
     flex-wrap: wrap; /* Ensures buttons don't squish into two lines */
+}
+
+/* Smooth Crossfade for Visualizer Metadata */
+#visualizer-metadata {
+    transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    opacity: 0;
+}
+#visualizer-metadata.meta-visible {
+    opacity: 1;
 }

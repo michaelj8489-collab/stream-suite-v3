@@ -18,9 +18,12 @@
       "icon": "stream-suite-logo.png"
     },
     "mac": {
-  "target": ["zip", "dmg"],
-  "category": "public.app-category.video"
-}
+      "target": [
+        "zip",
+        "dmg"
+      ],
+      "category": "public.app-category.video"
+    }
   },
   "keywords": [],
   "author": "",
@@ -36,8 +39,8 @@
     "three": "^0.184.0"
   },
   "dependencies": {
+    "@react-three/postprocessing": "^3.0.4",
     "ffmpeg-static": "^5.3.0",
     "fluent-ffmpeg": "^2.1.3"
   }
 }
-

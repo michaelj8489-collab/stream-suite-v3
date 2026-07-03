@@ -7,42 +7,60 @@
     <style>
         html, body {
             margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: #111;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0; padding: 0;
             width: 100vw; height: 100vh;
             background-color: #111;
             overflow: hidden;
-            display: grid;
-            grid-template-columns: 1280px 1fr;
-            grid-template-rows: 680px 1fr; 
+            display: block;
+            position: relative;
         }
 
         /* Unified Drag Region CSS removed in favor of inline styles */
         .win-btn:hover { background: #333 !important; color: #fff !important; }
         #win-close:hover { background: #cc0000 !important; }
+        
+        .studio-titlebar {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .studio-titlebar:hover {
+            opacity: 1;
+        }
 
-        /* Grid Zones */
+        /* Layout Zones using absolute positioning for absolute anchor stability */
         #zone-canvas { 
-            grid-column: 1 / 2;
-            grid-row: 1 / 2;
+            position: absolute !important;
+            top: 35px; /* Sits right under the 35px drag region */
+            left: 0;
             width: 1280px !important;
             height: 640px !important;
-            position: relative !important;
-            margin-top: 40px; 
             overflow: hidden;
             background-color: #000;
             cursor: none;
         }
         #zone-chat-global { 
-            grid-column: 2 / 3;
-            grid-row: 1 / 2;
+            position: absolute !important;
+            top: 35px;
+            left: 1280px;
+            right: 0;
+            height: 640px;
             display: flex;
             flex-direction: column;
             border-left: 2px solid #ff4500;
             background: #111;
-            margin-top: 40px; /* Aligns with the 40px drag region */
         }
         #zone-chat-embers { 
-            grid-column: 2 / 3;
-            grid-row: 2 / 3;
+            position: absolute !important;
+            top: 675px;
+            left: 1280px;
+            right: 0;
+            bottom: 0;
             display: flex;
             flex-direction: column;
             border-left: 2px solid #ff4500;
@@ -50,15 +68,17 @@
             background: #111;
         }
         #zone-remote { 
-            grid-column: 1 / 2;
-            grid-row: 2 / 3;
+            position: absolute !important;
+            top: 675px;
+            left: 0;
+            width: 1280px;
+            bottom: 0;
             display: flex;
             flex-wrap: nowrap; 
             overflow-x: auto; 
             align-items: flex-start;
             padding: 15px;
             gap: 15px;
-            margin-top: 0 !important; /* Reset from style.css */
         }
 
         /* Chat Styles */
@@ -117,9 +137,9 @@
     </style>
 </head>
 <body>
-  <div id="master-drag-region" style="width: 100%; height: 35px; background-color: #000; position: absolute; top: 0; left: 0; z-index: 1000; -webkit-app-region: drag; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #ff5500;">
+  <div id="master-drag-region" style="width: 100%; height: 35px; background-color: #000; position: fixed; top: 0; left: 0; z-index: 1000; -webkit-app-region: drag; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #ff5500;">
       <span style="color: #ff5500; font-size: 0.9rem; font-weight: bold; letter-spacing: 2px;">STREAM SUITE STUDIO</span>
-      <div style="position: absolute; right: 0; top: 0; height: 35px; width: 100px; -webkit-app-region: no-drag; display: flex; z-index: 1001;">
+      <div class="studio-titlebar" style="position: absolute; right: 0; top: 0; height: 35px; width: 150px; -webkit-app-region: no-drag; display: flex; z-index: 1001;">
           <button class="win-btn" id="win-min" style="flex: 1; background: #111; border: none; color: #888; cursor: pointer; font-size: 1rem;">_</button>
           <button class="win-btn" id="win-max" style="flex: 1; background: #111; border: none; color: #888; cursor: pointer; font-size: 1rem;">□</button>
           <button class="win-btn" id="win-close" style="flex: 1; background: #111; border: none; color: #888; cursor: pointer; font-size: 1rem;">X</button>
@@ -131,8 +151,8 @@
             <div id="countdown-bg-container" style="position: absolute; width: 100%; height: 100%; z-index: 1;"></div>
             
             <div id="countdown-content" style="position: absolute; width: 100%; height: 100%; z-index: 2; display: flex; flex-direction: column; align-items: center;">
-                <h1 id="countdown-header-text" style="margin: 0; font-size: 5rem; text-shadow: 4px 4px 15px rgba(0,0,0,0.9);">Starting Soon...</h1>
-                <h2 id="countdown-timer" style="margin: 0; font-size: 8rem; font-weight: bold; text-shadow: 4px 4px 15px rgba(0,0,0,0.9);">05:00</h2>
+                <h1 id="countdown-header-text" style="margin: 0; font-size: 3rem; line-height: 1.2; text-shadow: 4px 4px 15px rgba(0,0,0,0.9);">Starting Soon...</h1>
+                <h2 id="countdown-timer" style="margin: 0; font-size: 5rem; line-height: 1.0; font-weight: bold; text-shadow: 4px 4px 15px rgba(0,0,0,0.9);">05:00</h2>
             </div>
         </div>
 
@@ -141,7 +161,9 @@
             
            <div id="host-frame" style="position: absolute; pointer-events: none; z-index: 5;"></div>
             
-            <img id="sponsor-overlay" class="sponsor-hidden pos-top-right" src="" alt="Sponsor Logo">
+            <img id="sponsor-overlay-1" class="sponsor-overlay sponsor-hidden pos-top-left" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Sponsor Logo 1">
+            <img id="sponsor-overlay-2" class="sponsor-overlay sponsor-hidden pos-top-right" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Sponsor Logo 2">
+            <img id="sponsor-overlay-3" class="sponsor-overlay sponsor-hidden pos-bottom-right" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Sponsor Logo 3">
             
             <div id="host-lower-third" style="z-index: 10;">
                 <h2 id="host-name-display">Loading...</h2>
@@ -149,27 +171,24 @@
             </div>
         </div>
 
-       <div id="scene-media" class="broadcast-scene">
-            <div id="media-bg-container" style="position: absolute; width: 100%; height: 100%; z-index: 1; filter: blur(25px) brightness(0.3); transform: scale(1.1);"></div>
-            <video id="media-video-player" style="position: absolute; width: 100%; height: 100%; object-fit: contain; z-index: 2; display: none; background: transparent !important;"></video>
-            <div id="react-visualizer-root" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none;"></div>
-            <div id="media-metadata-container" style="position: absolute; bottom: 40px; left: 40px; z-index: 4; display: flex; flex-direction: column;">
-                <h1 id="media-song-title" style="margin: 0; font-size: 3.5rem; text-shadow: 2px 2px 10px rgba(0,0,0,0.9);">Waiting for Audio...</h1>
-                <h2 id="media-artist-name" style="margin: 5px 0 0 0; font-size: 1.8rem; color: #cccccc; text-shadow: 2px 2px 10px rgba(0,0,0,0.9);">Stream Suite V3</h2>
-            </div>
-        </div>
-        
+     <div id="scene-media" class="broadcast-scene">
+    <div id="media-bg-container" style="position: absolute; width: 100%; height: 100%; z-index: 1; filter: blur(25px) brightness(0.3); transform: scale(1.1);"></div>
+    <video id="media-video-player" style="position: absolute; width: 100%; height: 100%; object-fit: contain; z-index: 2; display: none; background: black !important;"></video>
+    
+    <div id="react-visualizer-root" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.5));"></div>
+    
+    <div id="visualizer-metadata" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 4; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; pointer-events: none;">
+        <h2 id="viz-song-title" style="margin: 0; font-size: 3.5rem; letter-spacing: 4px; color: #ff0000; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 25px rgba(0,0,0,1), 0 0 40px rgba(0,0,0,1);"></h2>
+        <p id="viz-artist-name" style="margin: 0; font-size: 1.8rem; letter-spacing: 8px; color: #ff5555; text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 0 0 25px rgba(0,0,0,1);"></p>
+    </div>
+</div>
+
         <div id="scene-screenshare" class="broadcast-scene">
             <video id="screenshare-video" autoplay muted style="width: 100%; height: 100%; object-fit: contain; background: #000;"></video>
         </div>
 
-        <div id="global-banner-container">
-            <div id="banner-logo-wrapper" style="display: none; height: 100%; padding: 5px 20px; background: rgba(255,255,255,0.1); border-right: 2px solid #ff5500; z-index: 10001; align-items: center; justify-content: center;">
-                <img id="banner-logo-img" src="" style="height: 100%; max-height: 50px; object-fit: contain;">
-            </div>
-            <div class="ticker-wrap">
-                <div id="global-banner-text" class="ticker-text">Welcome to the Live Broadcast!</div>
-            </div>
+        <div id="global-banner-container" style="display: none;">
+            <div id="global-banner-text" class="banner-text"></div>
         </div>
     </div>
 
@@ -239,12 +258,8 @@
                 <input type="text" id="remote-song-input" class="text-input" placeholder="Song Title / Show Topic" style="margin-bottom: 5px;">
                 <input type="text" id="remote-artist-input" class="text-input" placeholder="Artist Name / Guest Name" style="margin-bottom: 10px;">
                 <button id="remote-push-metadata" class="secondary-btn remote-btn">Push Text to Canvas</button>
-                <h3 style="margin-top: 15px;">Sliding Banner</h3>
-                <input type="text" id="remote-banner-input" class="text-input" placeholder="Enter scrolling ticker text..." style="margin-bottom: 5px;">
-                <div class="flex-row">
-                    <button id="remote-banner-img-btn" class="secondary-btn" style="flex-grow: 1;">📷 Change Logo</button>
-                    <input type="text" id="remote-banner-img-path" class="text-input" placeholder="No logo..." readonly style="width: 50%;">
-                </div>
+                <h3 style="margin-top: 15px;">Pop-Up Banner</h3>
+                <input type="text" id="remote-banner-input" class="text-input" placeholder="Enter banner text..." style="margin-bottom: 5px;">
                 <button id="remote-banner-toggle" class="secondary-btn remote-btn" style="margin-top: 10px;">Show / Hide Banner</button>
             </div>
             <div class="control-group">
@@ -276,10 +291,15 @@
                 
                 <h3 style="margin-top: 10px;">Logo Placement</h3>
                 <div class="position-buttons flex-row">
-                    <button onclick="moveSponsor('pos-top-left')" class="secondary-btn">Top Left</button>
-                    <button onclick="moveSponsor('pos-top-right')" class="secondary-btn">Top Right</button>
-                    <button onclick="moveSponsor('pos-bottom-left')" class="secondary-btn">Bottom Left</button>
-                    <button onclick="moveSponsor('pos-bottom-right')" class="secondary-btn">Bottom Right</button>
+                    <select id="sponsor-move-select" style="padding: 5px; background: #222; color: white; border: 1px solid #444; margin-right: 5px;">
+                        <option value="1">Logo 1</option>
+                        <option value="2">Logo 2</option>
+                        <option value="3">Logo 3</option>
+                    </select>
+                    <button onclick="moveSelectedSponsor('pos-top-left')" class="secondary-btn">↖️</button>
+                    <button onclick="moveSelectedSponsor('pos-top-right')" class="secondary-btn">↗️</button>
+                    <button onclick="moveSelectedSponsor('pos-bottom-left')" class="secondary-btn">↙️</button>
+                    <button onclick="moveSelectedSponsor('pos-bottom-right')" class="secondary-btn">↘️</button>
                 </div>
             </div>
 
@@ -295,8 +315,25 @@
             <iframe id="iframe-embers" src="about:blank" style="flex: 1; border: none; background: #000; width: 100%;"></iframe>
         </div>
     </div>
-
-    <script src="studio.js"></script>
     <script src="visualizer.bundle.js"></script>
+    <script src="studio.js"></script>
+
+    <script>
+        // CRITICAL BUG FIX: Prevent external chat iframes (Restream/Twitch) or autofocus from scrolling the window
+        // When these chat widgets load, they try to auto-focus their input fields. If the chat is near the bottom
+        // of the screen, the browser forcefully scrolls the entire body down to bring it into view, which pushes
+        // the canvas UP and out of bounds. This intercepts any scroll attempt and forces it back to 0.
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 0 || window.scrollX > 0) {
+                window.scrollTo(0, 0);
+            }
+        });
+        document.addEventListener('scroll', (e) => {
+            if (e.target === document.documentElement || e.target === document.body) {
+                e.target.scrollTop = 0;
+                e.target.scrollLeft = 0;
+            }
+        }, true);
+    </script>
 </body>
 </html>

@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // 0. WINDOW CONTROLS
 // ==========================================
 document.getElementById('min-btn')?.addEventListener('click', () => ipcRenderer.send('window-control', 'minimize'));
+document.getElementById('max-btn')?.addEventListener('click', () => ipcRenderer.send('window-control', 'maximize'));
 document.getElementById('close-btn')?.addEventListener('click', () => ipcRenderer.send('window-control', 'close'));
 
 // ==========================================
@@ -413,15 +414,20 @@ btnDeploy.addEventListener('click', () => {
         hostName: document.getElementById('host-name-input')?.value || '',
         showName: document.getElementById('show-name-input')?.value || '',
         hostTheme: document.getElementById('host-theme')?.value || '',
+        bannerText: '',
+        bannerFont: document.getElementById('banner-font-select')?.value || 'Arial',
+        bannerBgColor: document.getElementById('banner-bg-color')?.value || '#000000',
+        bannerTextColor: document.getElementById('banner-text-color')?.value || '#ffffff',
+        bannerTextSize: document.getElementById('banner-text-size')?.value || '2rem',
         hostAudioType: document.getElementById('host-audio-type')?.value || '',
         hostAudioPath: document.getElementById('host-audio-path')?.value || '',
         hostLineInId: document.getElementById('host-linein-device')?.value || '',
         hostInitSong: document.getElementById('host-initial-song')?.value || '',
         hostInitArtist: document.getElementById('host-initial-artist')?.value || '',
-        mediaBg: document.getElementById('media-bg-path')?.value || '',
+        mediaTextColor: '#ffffff',
         mediaFont: document.getElementById('media-font')?.value || '',
-        mediaTextColor: document.getElementById('media-text-color')?.value || '',
-        mediaBarColor: document.getElementById('media-bar-color')?.value || '',
+        mediaBarColor: '#ffffff',  // Hardcoded for monochrome
+        mediaBgPath: '',           // Hardcoded blank
         mediaAudioType: document.getElementById('media-audio-type')?.value || '',
         mediaAudioPath: document.getElementById('media-audio-path')?.value || '',
         mediaLineInId: document.getElementById('media-linein-device')?.value || '',

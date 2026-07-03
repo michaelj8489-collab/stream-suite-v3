@@ -57,8 +57,9 @@ let currentLineInSourceNode = null;
 let currentLineInId = null;
 let currentStudioConfig = {};
 
-mediaAudio.crossOrigin = "anonymous";
-mediaAudio.addEventListener('play', () => {
+// --- Route Video Audio to the Stream Mixer ---
+mediaVideo.crossOrigin = "anonymous";
+mediaVideo.addEventListener('play', () => {
     if (!audioCtx) {
         audioCtx = new AudioContext();
         internalMixerNode = audioCtx.createMediaStreamDestination();
@@ -68,26 +69,26 @@ mediaAudio.addEventListener('play', () => {
             const visualizerTap = audioCtx.createMediaStreamSource(internalMixerNode.stream);
             visualizerTap.connect(streamAnalyser);
             visualizerDataArray = new Uint8Array(streamAnalyser.frequencyBinCount);
-            
-            // Expose globally for React Visualizer
             window.streamAnalyser = streamAnalyser;
             window.visualizerDataArray = visualizerDataArray;
         }
         startAudioPipeEncoder();
     }
-    if (!analyser) {
-        analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256;
-        source = audioCtx.createMediaElementSource(mediaAudio);
-        source.connect(analyser);
-        analyser.connect(audioCtx.destination);
+    
+    // Wire the video's audio into the main broadcast mixer
+    if (!mediaVideo.dataset.routed) {
+        const videoSource = audioCtx.createMediaElementSource(mediaVideo);
         if (!bgmPreamp) {
             bgmPreamp = audioCtx.createGain();
-            bgmPreamp.gain.value = 1.2; // Default is "just a hair" louder than standard 1.0
+            bgmPreamp.gain.value = 1.2;
             bgmPreamp.connect(internalMixerNode);
         }
-        analyser.connect(bgmPreamp);
+        videoSource.connect(bgmPreamp);              // Send to Stream (FFmpeg)
+        videoSource.connect(audioCtx.destination);   // Send to Local Speakers (Host)
+        mediaVideo.dataset.routed = "true";
+        console.log("🔌 Media Video Audio successfully routed to Stream Mixer!");
     }
+    
     if (audioCtx.state === 'suspended') {
         audioCtx.resume();
     }
@@ -116,8 +117,9 @@ function loadMediaFromSource(audioPath, audioObj, playIndex = 0) {
             const files = fs.readdirSync(audioPath).filter(f => {
                 const ext = f.toLowerCase();
                 return ext.endsWith('.mp3') || ext.endsWith('.wav') || ext.endsWith('.m4a') || 
+                       ext.endsWith('.flac') || ext.endsWith('.ogg') || ext.endsWith('.aac') || ext.endsWith('.wma') || 
                        ext.endsWith('.mp4') || ext.endsWith('.webm') || ext.endsWith('.mkv') || ext.endsWith('.mov');
-            });
+            }).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
             if (files.length > 0) {
                 // Wrap around logic for next/prev
                 let safeIndex = playIndex % files.length;
@@ -138,29 +140,48 @@ function loadMediaFromSource(audioPath, audioObj, playIndex = 0) {
             const ext = fileToPlay.toLowerCase();
             const isVideo = ext.endsWith('.mp4') || ext.endsWith('.webm') || ext.endsWith('.mkv') || ext.endsWith('.mov');
             
-            if (isVideo) {
+           if (isVideo) {
                 mediaVideo.src = `file:///${fileToPlay.replace(/\\/g, '/')}`;
                 mediaVideo.load();
-                if (document.getElementById('media-metadata-container')) document.getElementById('media-metadata-container').style.display = 'none';
-                let canvasEl = document.getElementById('react-visualizer-root');
-                if (canvasEl) canvasEl.style.display = 'none';
+                
+                // Hide the new 3D Visualizer when an MP4 video is playing
+                let vizContainer = document.getElementById('react-visualizer-root');
+                let vizMeta = document.getElementById('visualizer-metadata');
+                if (vizContainer) vizContainer.style.display = 'none';
+                if (vizMeta) vizMeta.style.display = 'none';
+                
                 mediaVideo.style.display = 'block';
                 mediaAudio.pause();
                 if (playIndex !== 0) mediaVideo.play();
             } else {
                 mediaAudio.src = `file:///${fileToPlay.replace(/\\/g, '/')}`;
                 mediaAudio.load();
-                if (document.getElementById('media-metadata-container')) document.getElementById('media-metadata-container').style.display = 'flex';
-                let canvasEl = document.getElementById('react-visualizer-root');
-                if (canvasEl) canvasEl.style.display = 'block';
+                
+                // --- NEW: Trigger our Crossfade Text Engine ---
+                if (window.updateVisualizerTextSmoothly) {
+                    window.updateVisualizerTextSmoothly(path.basename(fileToPlay));
+                }
+
+                // Show the new 3D Visualizer when audio is playing
+                let vizContainer = document.getElementById('react-visualizer-root');
+                let vizMeta = document.getElementById('visualizer-metadata');
+                if (vizContainer) vizContainer.style.display = 'block';
+                if (vizMeta) vizMeta.style.display = 'flex';
+                
                 mediaVideo.style.display = 'none';
                 mediaVideo.pause();
-                if (playIndex !== 0) mediaAudio.play();
+                if (playIndex !== 0) {
+                    routeBackgroundAudio(mediaAudio);
+                    mediaAudio.play();
+                }
             }
         } else {
             audioObj.src = `file:///${fileToPlay.replace(/\\/g, '/')}`;
             audioObj.load();
-            if (playIndex !== 0) audioObj.play();
+            if (playIndex !== 0) {
+                routeBackgroundAudio(audioObj);
+                audioObj.play();
+            }
         }
 
         return fileToPlay; 
@@ -261,8 +282,8 @@ async function startMicRouting(micDeviceId) {
         // Route Mic into the internal mixer
         if (!digitalMicPreamp) {
             digitalMicPreamp = audioCtx.createGain();
-            // Boost the raw clean signal by 250%
-            digitalMicPreamp.gain.value = 2.5; 
+            // Boost the raw clean signal by 500%
+            digitalMicPreamp.gain.value = 5.0; 
             
             // Connect the pre-amp output to the main broadcast mixer
             digitalMicPreamp.connect(internalMixerNode);
@@ -284,12 +305,53 @@ async function startMicRouting(micDeviceId) {
     } catch (err) { console.error("Mic routing failed:", err); }
 }
 
+let micDeadSilentFrames = 0;
+let micWarningShown = false;
+
 function drawMicMeter() {
     requestAnimationFrame(drawMicMeter);
     if (!micAnalyser) return;
     let data = new Uint8Array(micAnalyser.frequencyBinCount);
     micAnalyser.getByteFrequencyData(data);
     let avg = data.reduce((a, b) => a + b, 0) / data.length;
+
+    // SILENCE DETECTOR: Warn if the mic is totally dead while we're broadcasting
+    const micToggleBtn = document.getElementById('remote-mic-toggle');
+    const isMicMutedInApp = micToggleBtn && micToggleBtn.innerText.includes('OFF');
+    
+    // Only check if we are LIVE, the mic is digitally ON, and the mic is enabled in the current scene
+    if (window.isLive && globalMicTrack && globalMicTrack.enabled && !isMicMutedInApp) {
+        if (avg < 1) { // Essentially dead silent
+            micDeadSilentFrames++;
+            if (micDeadSilentFrames > 60 * 30 && !micWarningShown) { // 30 seconds of pure silence
+                micWarningShown = true;
+                
+                // Show a non-intrusive banner warning
+                const bannerContainer = document.getElementById('global-banner-container');
+                const bannerTextElement = document.getElementById('global-banner-text');
+                
+                if (bannerContainer && bannerTextElement) {
+                    bannerTextElement.innerText = "⚠️ WARNING: Mic is dead silent! Is it muted or unplugged?";
+                    bannerContainer.classList.add('banner-visible');
+                    
+                    // Auto-hide the warning after 8 seconds so it doesn't stay on stream forever
+                    setTimeout(() => {
+                        bannerContainer.classList.remove('banner-visible');
+                        micDeadSilentFrames = 0; // Reset counter
+                        micWarningShown = false;
+                    }, 8000);
+                }
+            }
+        } else {
+            // User made noise, reset the silence tripwire
+            micDeadSilentFrames = 0;
+            micWarningShown = false;
+        }
+    } else {
+        // Not live or intentionally muted, so reset the counter
+        micDeadSilentFrames = 0;
+    }
+
     let canvas = document.getElementById('mic-meter');
     if (!canvas) return;
     let ctx = canvas.getContext('2d');
@@ -341,22 +403,48 @@ ipcRenderer.on('stop-internal-recording', () => {
 // ==========================================
 // INITIALIZATION (Canvas)
 // ==========================================
+async function getWebRTCDeviceId(friendlyName, deviceKind) {
+    if (!friendlyName) return undefined;
+    try {
+        await navigator.mediaDevices.getUserMedia({ [deviceKind === 'audioinput' ? 'audio' : 'video']: true }).catch(()=>console.log("Silent permission request ignored"));
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const matchingDevices = devices.filter(d => d.kind === deviceKind);
+        for (let d of matchingDevices) {
+            if (d.label.includes(friendlyName) || friendlyName.includes(d.label)) {
+                console.log(`✅ Translated '${friendlyName}' to WebRTC ID: ${d.deviceId.substring(0,8)}...`);
+                return d.deviceId;
+            }
+        }
+    } catch (err) { console.error("Device translation failed:", err); }
+    console.warn(`⚠️ Could not find exact WebRTC ID for ${friendlyName}. Falling back to default.`);
+    return undefined;
+}
+
+/// ==========================================
+// INITIALIZATION (Canvas) - No Duplicate Imports
+// ==========================================
 async function initializeCanvas() {
     const config = await ipcRenderer.invoke('get-master-config');
-    currentStudioConfig = config;
+    const currentStudioConfig = config; 
     console.log("Canvas fully loaded with settings:", config);
 
     document.getElementById('host-name-display').innerText = config.hostName || "Host Name";
     document.getElementById('show-name-display').innerText = config.showName || "Live Broadcast";
 
     // Route the mic based on config
-    await startMicRouting(config.micId);
+    if (typeof startMicRouting === 'function') {
+        await startMicRouting(config.micId);
+    }
 
-    applyCountdownSettings(config);
-    applyHostSettings(config);
-    applyMediaSettings(config);
-    applyScreenShareSettings(config);
+    // Apply UI settings
+    if (typeof applyCountdownSettings === 'function') applyCountdownSettings(config);
+    if (typeof applyHostSettings === 'function') applyHostSettings(config);
+    if (typeof applyMediaSettings === 'function') applyMediaSettings(config);
+    if (typeof applyScreenShareSettings === 'function') applyScreenShareSettings(config);
+    
+    // Apply the banner settings
     applyBannerSettings(config);
+    if (typeof applyChatSettings === 'function') applyChatSettings(config);
 
     if (config.cameraId) {
         try {
@@ -376,13 +464,36 @@ async function initializeCanvas() {
     }, 500);
 }
 
-initializeCanvas();
+// --- STATIC BANNER FUNCTION ---
+function applyBannerSettings(config) {
+    const bannerContainer = document.getElementById('global-banner-container');
+    const bannerTextElement = document.getElementById('global-banner-text');
 
+    if (bannerContainer && bannerTextElement) {
+        // ALWAYS show the container so CSS transitions work, hide it off-screen via CSS
+        bannerContainer.style.display = 'flex'; 
+        
+        if (config.bannerFont) bannerTextElement.style.fontFamily = `"${config.bannerFont}", sans-serif`;
+        if (config.bannerTextColor) bannerTextElement.style.color = config.bannerTextColor;
+        if (config.bannerTextSize) bannerTextElement.style.fontSize = config.bannerTextSize;
+        // Appending 'CC' to the hex code instantly forces it to 80% opacity
+        if (config.bannerBgColor) bannerContainer.style.backgroundColor = config.bannerBgColor + 'CC';
+        
+        // The text pre-fill logic has been completely removed so it starts blank
+    }
+}
+
+
+// Ensure this is called once at the end
+initializeCanvas();
 // ==========================================
 // REAL-TIME UPDATE LISTENER
 // ==========================================
 ipcRenderer.on('update-canvas-ui', async (event, data) => {
     currentStudioConfig = { ...currentStudioConfig, ...data };
+
+    // NEW LINE: Catch the font and save it globally for the visualizer!
+    if (data.mediaFont) window.currentMediaFont = data.mediaFont;
     
     // 1. Correct Text Overrides
     if (data.hostName) document.getElementById('host-name-display').innerText = data.hostName;
@@ -414,7 +525,21 @@ ipcRenderer.on('update-canvas-ui', async (event, data) => {
     applyMediaSettings(data); 
     applyScreenShareSettings(data);
     applyBannerSettings(data);
+    applyChatSettings(data);
 });
+
+// --- Chat Settings ---
+function applyChatSettings(config) {
+    const restreamIframe = document.getElementById('iframe-restream');
+    const embersIframe = document.getElementById('iframe-embers');
+    
+    if (config.restreamChatUrl && restreamIframe && restreamIframe.getAttribute('src') !== config.restreamChatUrl) {
+        restreamIframe.setAttribute('src', config.restreamChatUrl);
+    }
+    if (config.embersChatUrl && embersIframe && embersIframe.getAttribute('src') !== config.embersChatUrl) {
+        embersIframe.setAttribute('src', config.embersChatUrl);
+    }
+}
 
 // ==========================================
 // SCENE BUILDERS
@@ -447,7 +572,13 @@ function applyCountdownSettings(config) {
         if (['mp4', 'webm', 'mkv'].includes(fileExt)) {
             bgContainer.innerHTML = `<video src="${fileUrl}" autoplay loop muted style="width: 100%; height: 100%; object-fit: cover;"></video>`;
         } else {
-            bgContainer.innerHTML = `<img src="${fileUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            const img = document.createElement('img');
+            img.src = fileUrl;
+            img.alt = ''; // CRITICAL: Suppresses the broken image icon in Chromium
+            img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; background: transparent;';
+            img.addEventListener('error', function() { this.style.display = 'none'; });
+            bgContainer.innerHTML = '';
+            bgContainer.appendChild(img);
         }
     }
 
@@ -506,15 +637,27 @@ function applyHostSettings(config) {
 
 // --- Scene 3: Media Player ---
 function applyMediaSettings(config) {
-    const songDisplay = document.getElementById('media-song-title');
-    const artistDisplay = document.getElementById('media-artist-name');
+    const reactVisRoot = document.getElementById('react-visualizer-root');
+    const visMetadata = document.getElementById('visualizer-metadata');
+
+    if (!reactVisRoot || !visMetadata) {
+        setTimeout(() => applyMediaSettings(config), 100);
+        return;
+    }
+
+    const songDisplay = document.getElementById('viz-song-title');
+    const artistDisplay = document.getElementById('viz-artist-name');
     
-    if (config.mediaFont) {
+    if (songDisplay && config.mediaFont) {
         songDisplay.style.fontFamily = `"${config.mediaFont}", sans-serif`;
+    }
+    if (artistDisplay && config.mediaFont) {
         artistDisplay.style.fontFamily = `"${config.mediaFont}", sans-serif`;
     }
-    if (config.mediaTextColor) {
+    if (songDisplay && config.mediaTextColor) {
         songDisplay.style.color = config.mediaTextColor;
+    }
+    if (artistDisplay && config.mediaTextColor) {
         artistDisplay.style.color = config.mediaTextColor;
     }
 
@@ -529,7 +672,13 @@ function applyMediaSettings(config) {
         if (['mp4', 'webm', 'mkv'].includes(fileExt)) {
             bgContainer.innerHTML = `<video src="${fileUrl}" autoplay loop muted style="width: 100%; height: 100%; object-fit: cover;"></video>`;
         } else {
-            bgContainer.innerHTML = `<img src="${fileUrl}" style="width: 100%; height: 100%; object-fit: cover;">`;
+            const img = document.createElement('img');
+            img.src = fileUrl;
+            img.alt = ''; // CRITICAL: Suppresses the broken image icon in Chromium
+            img.style.cssText = 'width: 100%; height: 100%; object-fit: cover; background: transparent;';
+            img.onerror = function() { this.remove(); };
+            bgContainer.innerHTML = '';
+            bgContainer.appendChild(img);
         }
     }
 
@@ -539,8 +688,8 @@ function applyMediaSettings(config) {
             currentLineInId = config.mediaLineInId;
             startLineInRouting(currentLineInId);
         }
-        if (config.mediaInitSong) songDisplay.innerText = config.mediaInitSong;
-        if (config.mediaInitArtist) artistDisplay.innerText = config.mediaInitArtist;
+        if (songDisplay && config.mediaInitSong) songDisplay.innerText = config.mediaInitSong;
+        if (artistDisplay && config.mediaInitArtist) artistDisplay.innerText = config.mediaInitArtist;
     } else if (config.mediaAudioPath && config.mediaAudioPath !== currentMediaPath) {
         currentMediaPath = config.mediaAudioPath;
         const loadedFile = loadMediaFromSource(currentMediaPath, mediaAudio);
@@ -549,15 +698,15 @@ function applyMediaSettings(config) {
             updateMediaMetadataDisplay(loadedFile);
         }
     } else if (!config.mediaAudioPath) {
-        if (config.mediaInitSong) songDisplay.innerText = config.mediaInitSong;
-        if (config.mediaInitArtist) artistDisplay.innerText = config.mediaInitArtist;
+        if (songDisplay && config.mediaInitSong) songDisplay.innerText = config.mediaInitSong;
+        if (artistDisplay && config.mediaInitArtist) artistDisplay.innerText = config.mediaInitArtist;
     }
 }
 
 // NEW: Helper to break down filename into display text
 function updateMediaMetadataDisplay(filePath) {
-    const songDisplay = document.getElementById('media-song-title');
-    const artistDisplay = document.getElementById('media-artist-name');
+    const songDisplay = document.getElementById('viz-song-title');
+    const artistDisplay = document.getElementById('viz-artist-name');
     
     let fileNameWithExt = filePath.split('\\').pop().split('/').pop();
     let fileName = fileNameWithExt.substring(0, fileNameWithExt.lastIndexOf('.')) || fileNameWithExt;
@@ -566,11 +715,11 @@ function updateMediaMetadataDisplay(filePath) {
     let parts = fileName.split(/_|-/);
     
     if (parts.length >= 2) {
-        songDisplay.innerText = parts[0].trim();
-        artistDisplay.innerText = parts.slice(1).join(' ').trim(); 
+        if (songDisplay) songDisplay.innerText = parts[0].trim();
+        if (artistDisplay) artistDisplay.innerText = parts.slice(1).join(' ').trim(); 
     } else {
-        songDisplay.innerText = fileName.trim();
-        artistDisplay.innerText = "Live Broadcast";
+        if (songDisplay) songDisplay.innerText = fileName.trim();
+        if (artistDisplay) artistDisplay.innerText = "Live Broadcast";
     }
 }
 
@@ -605,49 +754,7 @@ async function applyScreenShareSettings(config) {
     }
 }
 
-// --- Global Banner Aesthetics ---
-function applyBannerSettings(config) {
-    const container = document.getElementById('global-banner-container');
-    const textElement = document.getElementById('global-banner-text');
-    const logoWrapper = document.getElementById('banner-logo-wrapper');
-    const logoImg = document.getElementById('banner-logo-img');
 
-    if (config.bannerBgColor && config.bannerOpacity) {
-        let hex = config.bannerBgColor.replace('#', '');
-        let r = parseInt(hex.substring(0, 2), 16);
-        let g = parseInt(hex.substring(2, 4), 16);
-        let b = parseInt(hex.substring(4, 6), 16);
-        container.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${config.bannerOpacity})`;
-    }
-
-    if (config.bannerFont) {
-        textElement.style.fontFamily = `"${config.bannerFont}", sans-serif`;
-    }
-
-    if (config.bannerStyle === 'rounded') {
-        container.style.borderRadius = '30px 30px 0 0';
-        container.style.width = '96%';
-        container.style.left = '2%'; 
-    } else if (config.bannerStyle === 'angled') {
-        container.style.clipPath = 'polygon(2% 0, 100% 0, 100% 100%, 0% 100%)';
-        container.style.borderRadius = '0';
-        container.style.width = '100%';
-        container.style.left = '0';
-    } else {
-        container.style.borderRadius = '0';
-        container.style.clipPath = 'none';
-        container.style.width = '100%';
-        container.style.left = '0';
-    }
-
-    if (config.bannerImgPath) {
-        const fileUrl = `file:///${config.bannerImgPath.replace(/\\/g, '/')}`;
-        logoImg.src = fileUrl;
-        logoWrapper.style.display = 'flex';
-    } else {
-        logoWrapper.style.display = 'none';
-    }
-}
 
 // ==========================================
 // SCENE SWITCHER & AUTO-STATE LOGIC
@@ -677,57 +784,63 @@ ipcRenderer.on('change-active-scene', (event, sceneId) => {
     const targetScene = document.getElementById(`scene-${sceneId}`);
     if (targetScene) targetScene.classList.add('scene-active');
 
-    countdownAudio.pause();
-    hostAudio.pause();
-    mediaAudio.pause();
-    if (mediaVideo) mediaVideo.pause();
+    // Defer heavy audio/video switching to allow the CSS crossfade to start smoothly without stuttering the main thread
+    setTimeout(() => {
+        countdownAudio.pause();
+        hostAudio.pause();
+        mediaAudio.pause();
+        if (mediaVideo) mediaVideo.pause();
 
-    if (globalMicTrack) {
-        if (sceneId.includes('countdown') || sceneId.includes('media')) {
-            globalMicTrack.enabled = false;
-            console.log("🔇 Mic digitally MUTED for scene:", sceneId);
-        } else {
-            globalMicTrack.enabled = true;
-            console.log("🎙️ Mic LIVE for scene:", sceneId);
-        }
-    }
-
-    if (sceneId === 'countdown') {
-        startTimer(600); // 10 minutes (600 seconds)
-        if (countdownAudio.src) {
-            routeBackgroundAudio(countdownAudio);
-            countdownAudio.play().catch(e => console.log(e));
-        }
-    } 
-    else if (sceneId === 'host') {
-        if (hostAudio.src) {
-            routeBackgroundAudio(hostAudio);
-            hostAudio.play().catch(e => console.log(e));
-        }
-    } 
-    else if (sceneId === 'media') {
-        if (mediaVideo && mediaVideo.style.display === 'block') {
-            if (mediaVideo.src) mediaVideo.play().catch(e => console.log(e));
-        } else {
-            if (mediaAudio.src) mediaAudio.play().catch(e => console.log(e));
-        }
-    }
-
-    // Toggle Line-In Muting
-    if (currentLineInStream) {
-        const audioTrack = currentLineInStream.getAudioTracks()[0];
-        if (audioTrack) {
-            if (sceneId === 'countdown' && currentStudioConfig.countdownAudioType === 'line-in') {
-                audioTrack.enabled = true;
-            } else if (sceneId === 'host' && currentStudioConfig.hostAudioType === 'line-in') {
-                audioTrack.enabled = true;
-            } else if (sceneId === 'media' && currentStudioConfig.mediaAudioType === 'line-in') {
-                audioTrack.enabled = true;
+        if (globalMicTrack) {
+            if (sceneId.includes('countdown') || sceneId.includes('media')) {
+                globalMicTrack.enabled = false;
+                console.log("🔇 Mic digitally MUTED for scene:", sceneId);
             } else {
-                audioTrack.enabled = false;
+                globalMicTrack.enabled = true;
+                console.log("🎙️ Mic LIVE for scene:", sceneId);
             }
         }
-    }
+
+        if (sceneId === 'countdown') {
+            startTimer(600); // 10 minutes (600 seconds)
+            if (countdownAudio.src) {
+                routeBackgroundAudio(countdownAudio);
+                countdownAudio.play().catch(e => console.log(e));
+            }
+        } 
+        else if (sceneId === 'host') {
+            if (hostAudio.src) {
+                routeBackgroundAudio(hostAudio);
+                hostAudio.play().catch(e => console.log(e));
+            }
+        } 
+        else if (sceneId === 'media') {
+            if (mediaVideo && mediaVideo.style.display === 'block') {
+                if (mediaVideo.src) mediaVideo.play().catch(e => console.log(e));
+            } else {
+                if (mediaAudio.src) {
+                    routeBackgroundAudio(mediaAudio);
+                    mediaAudio.play().catch(e => console.log(e));
+                }
+            }
+        }
+
+        // Toggle Line-In Muting
+        if (currentLineInStream) {
+            const audioTrack = currentLineInStream.getAudioTracks()[0];
+            if (audioTrack) {
+                if (sceneId === 'countdown' && currentStudioConfig.countdownAudioType === 'line-in') {
+                    audioTrack.enabled = true;
+                } else if (sceneId === 'host' && currentStudioConfig.hostAudioType === 'line-in') {
+                    audioTrack.enabled = true;
+                } else if (sceneId === 'media' && currentStudioConfig.mediaAudioType === 'line-in') {
+                    audioTrack.enabled = true;
+                } else {
+                    audioTrack.enabled = false;
+                }
+            }
+        }
+    }, 100);
 });
 
 // ==========================================
@@ -801,36 +914,11 @@ ipcRenderer.on('audio-command', (event, command) => {
     } else if (command.type === 'mic-volume') {
         if (digitalMicPreamp) {
             let micVol = parseFloat(command.value) / 100;
-            digitalMicPreamp.gain.value = micVol * 3.0;
+            digitalMicPreamp.gain.value = micVol * 5.0;
         }
     }
 });
 
-// ==========================================
-// THE UNIVERSAL SLIDING BANNER
-// ==========================================
-let bannerIsVisible = false;
-
-ipcRenderer.on('toggle-banner', (event, bannerData) => {
-    const bannerContainer = document.getElementById('global-banner-container');
-    const textElement = document.getElementById('global-banner-text');
-    const logoWrapper = document.getElementById('banner-logo-wrapper');
-    const logoImg = document.getElementById('banner-logo-img');
-
-    bannerIsVisible = !bannerIsVisible;
-
-    if (bannerIsVisible) {
-        if (bannerData.text.trim() !== "") textElement.innerText = bannerData.text;
-        
-        if (bannerData.img) {
-            logoImg.src = `file:///${bannerData.img.replace(/\\/g, '/')}`;
-            logoWrapper.style.display = 'flex';
-        }
-        bannerContainer.classList.add('banner-visible');
-    } else {
-        bannerContainer.classList.remove('banner-visible');
-    }
-});
 
 // Auto-play the next track when current one ends
 mediaAudio.addEventListener('ended', () => {
@@ -949,216 +1037,108 @@ document.getElementById('media-btn-prev').addEventListener('click', () => ipcRen
 document.getElementById('media-btn-play').addEventListener('click', () => ipcRenderer.send('media-command', 'playpause'));
 document.getElementById('media-btn-next').addEventListener('click', () => ipcRenderer.send('media-command', 'next'));
 
-// 6. METADATA & BANNER PUSHERS
-document.getElementById('remote-push-metadata').addEventListener('click', () => {
-    const song = document.getElementById('remote-song-input').value;
-    const artist = document.getElementById('remote-artist-input').value;
-    // Pushes the text directly to the Canvas UI
-    ipcRenderer.send('send-live-update', { mediaInitSong: song, mediaInitArtist: artist });
-});
-
-// Banner Image Picker
-document.getElementById('remote-banner-img-btn').addEventListener('click', async () => {
-    const filePath = await ipcRenderer.invoke('dialog:openFile');
-    if (filePath) document.getElementById('remote-banner-img-path').value = filePath;
-});
 
 // Banner Toggle
 document.getElementById('remote-banner-toggle').addEventListener('click', () => {
-    const bannerText = document.getElementById('remote-banner-input').value;
-    const bannerImg = document.getElementById('remote-banner-img-path').value;
-    // Send BOTH the text and the image path to the Canvas
-    ipcRenderer.send('toggle-banner', { text: bannerText, img: bannerImg });
-});
-
-// 7. GLOBAL HOTKEYS
-window.addEventListener('keydown', (e) => {
-    // Don't trigger hotkeys if the user is typing in a text box!
-    if (document.activeElement.tagName === 'INPUT') return;
-
-    switch(e.key) {
-        case '1': switchScene('countdown'); break;
-        case '2': switchScene('host'); break;
-        case '3': switchScene('media'); break;
-        case '4': switchScene('screenshare'); break;
-        case ' ': 
-            e.preventDefault(); // Stop spacebar from scrolling the page
-            ipcRenderer.send('media-command', 'playpause'); 
-            break;
-        case 'ArrowLeft': ipcRenderer.send('media-command', 'prev'); break;
-        case 'ArrowRight': ipcRenderer.send('media-command', 'next'); break;
-    }
-});
-
-// 8. MASTER GO LIVE ENGINE
-let isLive = false;
-const goLiveBtn = document.getElementById('go-live-btn');
-
-goLiveBtn.addEventListener('click', () => {
-    isLive = !isLive;
-    if (isLive) {
-        goLiveBtn.classList.add('live');
-        goLiveBtn.innerText = "⏹ STOP STREAMING";
-        ipcRenderer.send('start-broadcast');
-    } else {
-        goLiveBtn.classList.remove('live');
-        goLiveBtn.innerText = "🔴 GO LIVE";
-        ipcRenderer.send('stop-broadcast');
-    }
-});
-
-// ==========================================
-// CHAT LOADER
-// ==========================================
-async function loadChats() {
-    const config = await ipcRenderer.invoke('get-master-config');
-    if (config.restreamChatUrl) document.getElementById('iframe-restream').src = config.restreamChatUrl;
-    if (config.embersChatUrl) document.getElementById('iframe-embers').src = config.embersChatUrl;
-}
-loadChats();
-
-// ==========================================
-// DYNAMIC SPONSOR OVERLAY SYSTEM
-// ==========================================
-const sponsorOverlay = document.getElementById('sponsor-overlay');
-const loadedSponsors = {};
-
-function loadSponsor(slot, event) {
-    const file = event.target.files[0];
-    if (file) {
-        // Create a secure, temporary local URL
-        loadedSponsors[slot] = URL.createObjectURL(file);
-        const btn = document.getElementById(`btn-show-${slot}`);
-        if (btn) {
-            btn.disabled = false;
-            btn.style.border = '2px solid #00ff00'; // Visually confirm it's loaded
-        }
-    }
-}
-
-function showSponsor(slot) {
-    if (!sponsorOverlay || !loadedSponsors[slot]) return;
+    const bannerContainer = document.getElementById('global-banner-container');
+    const bannerTextElement = document.getElementById('global-banner-text');
+    const remoteBannerInput = document.getElementById('remote-banner-input');
     
-    sponsorOverlay.classList.remove('sponsor-visible');
-    sponsorOverlay.classList.add('sponsor-hidden');
+    // 1. Update the canvas text to match whatever is typed in the remote input
+    if (remoteBannerInput.value.trim() !== "") {
+        bannerTextElement.innerText = remoteBannerInput.value;
+    }
     
+    // 2. Trigger the CSS slide animation
+    bannerContainer.classList.toggle('banner-visible');
+});
+
+
+/* =========================================
+   METADATA COUPLING & CROSSFADE ENGINE
+========================================= */
+function updateVisualizerTextSmoothly(rawFileName) {
+    const container = document.getElementById('visualizer-metadata');
+    const titleElem = document.getElementById('viz-song-title');
+    const artistElem = document.getElementById('viz-artist-name');
+
+    if (!container || !titleElem || !artistElem) return;
+
+    container.classList.remove('meta-visible');
+
     setTimeout(() => {
-        sponsorOverlay.src = loadedSponsors[slot];
-        sponsorOverlay.classList.remove('sponsor-hidden');
-        sponsorOverlay.classList.add('sponsor-visible');
+        let songTitle = "Unknown Track";
+        let artistName = "Rise Radio";
+
+        if (rawFileName) {
+            let cleanName = rawFileName.replace(/\.[^/.]+$/, ""); 
+
+            if (cleanName.includes('_')) {
+                const parts = cleanName.split('_');
+                if (parts.length >= 3) {
+                    songTitle = parts[1].trim();
+                    artistName = parts[2].trim();
+                } else if (parts.length === 2) {
+                    songTitle = parts[0].trim();
+                    artistName = parts[1].trim();
+                }
+            } else {
+                songTitle = cleanName;
+            }
+        }
+
+        titleElem.innerText = songTitle;
+        artistElem.innerText = artistName;
+
+        titleElem.style.fontFamily = window.currentMediaFont || "'Cinzel', sans-serif";
+        artistElem.style.fontFamily = window.currentMediaFont || "'Cinzel', sans-serif";
+
+        container.style.display = 'block';
+        container.offsetHeight; // Force reflow
+        container.classList.add('meta-visible');
     }, 500);
 }
-
-function hideSponsor() {
-    if (sponsorOverlay) {
-        sponsorOverlay.classList.remove('sponsor-visible');
-        sponsorOverlay.classList.add('sponsor-hidden');
-    }
-}
-
-function moveSponsor(positionClass) {
-    if (!sponsorOverlay) return;
-    
-    // Strip old position classes
-    sponsorOverlay.classList.remove('pos-top-left', 'pos-top-right', 'pos-bottom-left', 'pos-bottom-right');
-    // Apply new position class
-    sponsorOverlay.classList.add(positionClass);
-}
-
-// Make functions available globally for onclick attributes
-window.loadSponsor = loadSponsor;
-window.showSponsor = showSponsor;
-window.hideSponsor = hideSponsor;
-window.moveSponsor = moveSponsor;
+window.updateVisualizerTextSmoothly = updateVisualizerTextSmoothly;
 
 // ==========================================
-// REACT VISUALIZER CONFIG
+// GO LIVE BUTTON LOGIC
 // ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    const ecoModeToggle = document.getElementById('remote-vis-eco');
-    const disableToggle = document.getElementById('remote-vis-disable');
-    
-    if (ecoModeToggle) {
-        ecoModeToggle.addEventListener('change', (e) => {
-            window.visualizerEcoMode = e.target.checked;
-            window.dispatchEvent(new Event('visualizer-config-changed'));
-        });
-    }
-    
-    if (disableToggle) {
-        disableToggle.addEventListener('change', (e) => {
-            window.visualizerDisabled = e.target.checked;
-            window.dispatchEvent(new Event('visualizer-config-changed'));
-        });
-    }
-
-    // Run Safety Check at Startup
-    runVisualizerSafetyCheck();
-});
-
-// ==========================================
-// GPU AUTO-FAILOVER ENGINE
-// ==========================================
-function detectGPUCapacity() {
-    try {
-        const canvas = document.createElement('canvas');
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-        if (!gl) return 'unknown';
-
-        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-        if (debugInfo) {
-            const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL).toLowerCase();
-            console.log(`🔎 Detected GPU: ${renderer}`);
-            return renderer;
+window.isLive = false;
+const goLiveBtn = document.getElementById('go-live-btn');
+if (goLiveBtn) {
+    goLiveBtn.addEventListener('click', () => {
+        window.isLive = !window.isLive;
+        if (window.isLive) {
+            goLiveBtn.innerText = '🔴 LIVE';
+            goLiveBtn.classList.add('live');
+            ipcRenderer.send('start-broadcast');
+        } else {
+            goLiveBtn.innerText = '🔴 GO LIVE';
+            goLiveBtn.classList.remove('live');
+            ipcRenderer.send('stop-broadcast');
         }
-        return 'unknown';
-    } catch (e) {
-        return 'unknown';
-    }
+    });
 }
 
-function runVisualizerSafetyCheck() {
-    const gpuName = detectGPUCapacity();
-    const cpuCores = navigator.hardwareConcurrency || 4; // Ryzen 7 will report 16 here
-    
-    console.log(`🔎 Pre-flight Check: GPU = ${gpuName}, Cores = ${cpuCores}`);
-
-    // Only trigger the hard-kill if the GPU is weak AND they have less than 8 cores. 
-    const isKnownWeakGPU = (gpuName.includes('basic render') || gpuName.includes('llvmpipe')) && cpuCores < 8;
-
-    const disableCheckbox = document.getElementById('remote-vis-disable'); 
-    const ecoCheckbox = document.getElementById('remote-vis-eco'); 
-
-    if (isKnownWeakGPU || (gpuName === 'unknown' && cpuCores < 4)) {
-        // SCENARIO 1: Truly weak machine. Kill the visualizer.
-        console.warn("⚠️ Weak hardware detected. Auto-disabling 3D Visualizer.");
-        if (disableCheckbox && !disableCheckbox.checked) {
-            disableCheckbox.checked = true;
-            disableCheckbox.dispatchEvent(new Event('change')); 
-        }
-    } else if (gpuName.includes('intel') || gpuName.includes('hd graphics') || gpuName.includes('uhd graphics') || (gpuName === 'unknown' && cpuCores >= 4 && cpuCores <= 8)) {
-        // SCENARIO 2: Average laptop or masked GPU with decent cores. Put it in Eco Mode.
-        console.log("🟡 Integrated or Masked GPU detected. Defaulting to Eco Mode (30 FPS).");
-        if (ecoCheckbox && !ecoCheckbox.checked) {
-            ecoCheckbox.checked = true;
-            ecoCheckbox.dispatchEvent(new Event('change'));
-        }
-        // Ensure it's not disabled
-        if (disableCheckbox && disableCheckbox.checked) {
-            disableCheckbox.checked = false;
-            disableCheckbox.dispatchEvent(new Event('change'));
-        }
-    } else {
-        // SCENARIO 3: BadassBetty territory. Let it fly.
-        console.log("✅ Powerful hardware detected. Visualizer cleared for launch.");
-        // Ensure nothing is checking the boxes
-        if (disableCheckbox && disableCheckbox.checked) {
-            disableCheckbox.checked = false;
-            disableCheckbox.dispatchEvent(new Event('change'));
-        }
-        if (ecoCheckbox && ecoCheckbox.checked) {
-            ecoCheckbox.checked = false;
-            ecoCheckbox.dispatchEvent(new Event('change'));
-        }
+// ==========================================
+// BROADCAST CRASH HANDLER
+// ==========================================
+ipcRenderer.on('broadcast-crashed', (event, crashData) => {
+    // Reset the UI button state because the stream died
+    window.isLive = false;
+    if (goLiveBtn) {
+        goLiveBtn.innerText = '🔴 GO LIVE';
+        goLiveBtn.classList.remove('live');
     }
-}
+
+    // Alert the user with a native browser alert
+    const alertMessage = 
+        `🚨 CRITICAL STREAM FAILURE 🚨\n\n` +
+        `The stream stopped unexpectedly due to a crash in the engine.\n\n` +
+        `Crash Type: ${crashData.type}\n` +
+        `Summary: ${crashData.message}\n\n` +
+        `--- Diagnostic Details ---\n${crashData.details}\n\n` +
+        `Please check your network connection, hardware devices, or configuration and try going live again.`;
+    
+    alert(alertMessage);
+});

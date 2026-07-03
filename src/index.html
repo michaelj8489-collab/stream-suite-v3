@@ -23,11 +23,12 @@
     </style>
 </head>
 <body>
-    <div class="custom-titlebar">
+    <div id="drag-region"></div> 
+    <div class="custom-titlebar" style="z-index: 10000;">
         <button id="min-btn" class="titlebar-btn">_</button>
+        <button id="max-btn" class="titlebar-btn">□</button>
         <button id="close-btn" class="titlebar-btn close-btn">×</button>
     </div>
-    <div id="drag-region"></div> 
 
     <div class="app-layout">
         <div class="wizard-container">
@@ -190,6 +191,48 @@
                             <option value="retro-arcade">Retro-Arcade</option>
                         </select>
                     </div>
+
+                    <h4 style="color: #ff5500; margin-top: 20px; border-bottom: 1px solid #333; padding-bottom: 5px;">Static Pop-Up Banner</h4>
+                        <div style="display: flex; gap: 20px;">
+                        <div class="input-group" style="flex-grow: 2;">
+                            <label>Banner Font:</label>
+                            <select id="banner-font-select" class="text-input">
+                                <option value="Anton">Anton</option>
+                                <option value="Cinzel">Cinzel</option>
+                                <option value="Cinzel Decorative">Cinzel Decorative</option>
+                                <option value="Cormorant Garamond">Cormorant Garamond</option>
+                                <option value="Creepster">Creepster</option>
+                                <option value="DM Sans">DM Sans</option>
+                                <option value="Indie Flower">Indie Flower</option>
+                                <option value="Lora">Lora</option>
+                                <option value="Orbitron">Orbitron</option>
+                                <option value="Pacifico">Pacifico</option>
+                                <option value="Playfair Display SC">Playfair Display SC</option>
+                                <option value="Press Start 2P">Press Start 2P</option>
+                                <option value="Roboto Slab">Roboto Slab</option>
+                                <option value="Saira Stencil">Saira Stencil</option>
+                                <option value="Satisfy">Satisfy</option>
+                                <option value="Unifraktur Maguntia">Unifraktur Maguntia</option>
+                            </select>
+                        </div>
+                        <div class="input-group" style="flex-grow: 1;">
+                            <label>Text Size:</label>
+                            <select id="banner-text-size" class="text-input">
+                                <option value="1.5rem">Small</option>
+                                <option value="2.5rem" selected>Medium</option>
+                                <option value="3.5rem">Large</option>
+                                <option value="4.5rem">Extra Large</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Background Color:</label>
+                            <input type="color" id="banner-bg-color" value="#000000" style="height: 40px; cursor: pointer; border: none; padding: 0; background: transparent;">
+                        </div>
+                        <div class="input-group">
+                            <label>Text Color:</label>
+                            <input type="color" id="banner-text-color" value="#ffffff" style="height: 40px; cursor: pointer; border: none; padding: 0; background: transparent;">
+                        </div>
+                    </div>
                     
                     <h4 style="color: #ff5500; margin-top: 20px; border-bottom: 1px solid #333; padding-bottom: 5px;">Background Audio (Auto-Ducks to 1%)</h4>
                     <div class="input-group">
@@ -223,7 +266,7 @@
                     </div>
                 </div>
 
-                <div id="step-5" class="wizard-step">
+               <div id="step-5" class="wizard-step">
                     <div class="step-explanation">
                         <h4>Step 4: The DJ Booth</h4>
                         <p>This is the scene for playing music. Set up the automated folder where Stream Suite will read your tracks.</p>
@@ -242,6 +285,7 @@
                             <option value="line-in">Live Line-In</option>
                         </select>
                     </div>
+                    
                     <div class="input-group" id="media-folder-group" style="margin-top: 10px;">
                         <label>Music Folder:</label>
                         <div style="display: flex; gap: 10px;">
@@ -249,22 +293,17 @@
                             <input type="text" id="media-audio-path" class="text-input" readonly>
                         </div>
                     </div>
+                    
                     <div class="input-group" id="media-linein-group" style="display: none; margin-top: 10px;">
                         <label>Select Line-In Device:</label>
                         <select id="media-linein-device" class="text-input">
                             <option value="">No Line-In Selected</option>
                         </select>
                     </div>
-                    <div class="input-group">
-                        <label>Background Visual (Static or Looping Video):</label>
-                        <div style="display: flex; gap: 10px;">
-                            <button id="media-bg-btn" class="secondary-btn">Browse</button>
-                            <input type="text" id="media-bg-path" class="text-input" readonly>
-                        </div>
-                    </div>
-                    <div style="display: flex; gap: 20px;">
+                    
+                    <div style="display: flex; gap: 20px; margin-top: 20px;">
                         <div class="input-group" style="flex-grow: 1;">
-                            <label>Overlay Font:</label>
+                            <label>Visualizer Font Type:</label>
                             <select id="media-font" class="text-input">
                                 <option value="Anton">Anton</option>
                                 <option value="Cinzel">Cinzel</option>
@@ -284,15 +323,8 @@
                                 <option value="Unifraktur Maguntia">Unifraktur Maguntia</option>
                             </select>
                         </div>
-                        <div class="input-group">
-                            <label>Text Color:</label>
-                            <input type="color" id="media-text-color" value="#ffffff" style="height: 40px; cursor: pointer; border: none; padding: 0; background: transparent;">
-                        </div>
-                        <div class="input-group">
-                            <label>Reactive EQ Bar Color:</label>
-                            <input type="color" id="media-bar-color" value="#00ffff" style="height: 40px; cursor: pointer; border: none; padding: 0; background: transparent;">
-                        </div>
                     </div>
+
                     <div style="display: flex; gap: 20px; margin-top: 20px;">
                         <div class="input-group" style="flex-grow: 1;">
                             <label>Initial Song Title (Fallback):</label>
